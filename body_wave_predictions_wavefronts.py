@@ -3,6 +3,7 @@
 ### COMPUTES RAY PATHS AND TRAVEL TIMES FOR DIFFERENT BODY PHASES ##########
 #############################################################################
 
+
 ### Importing various python libraries
 # numpy is a useful toolkit for scientific computations
 import numpy as np
@@ -39,6 +40,16 @@ rays_dist_max=[110, 150,  181, 181, 160,180, 180 ]
 # darkness of grey (lower is lighter here)
 # this should be adapted, colors should change at reflection points
 color_attenuation=[1.0, 0.5, 0.8, 0.8, 0.3, 0.8, 1.0]
+
+# Direct P-wave test
+# phases_to_plot =['P']
+# rays_dist_min=[0]
+# rays_dist_max=[110]
+# color_attenuation=[1.0]
+
+
+
+
 
 # depth of earthquake in km
 depth_earthquake= 30.
@@ -116,7 +127,7 @@ ax.plot([0], [radius - depth_earthquake],
 
 ax.set_rmax(radius)
 ax.set_rmin(0.0)
-#plt.show()
+# plt.show()
 
 def animate(t, lines_left, lines_right):
     '''
@@ -155,5 +166,9 @@ animation = FuncAnimation(
                           # Frame-time in ms; i.e. for a given frame-rate x, 1000/x
                           interval=1000 / 25
                           )
-animation.save("out_funcanimation.mp4")
+
+# to save as GIF :
+from matplotlib.animation import PillowWriter
+animation.save("../wavefrom_movie_outputs/out_funcanimation.gif", writer=PillowWriter(fps=24))
+
 

@@ -2,6 +2,7 @@
 REQUIRED:
 conda install -c conda-forge instaseis
 
+
 check here for DB: http://ds.iris.edu/ds/products/syngine/
 
 # TO DO LIST:
@@ -14,6 +15,7 @@ import instaseis
 import obspy
 from obspy import read
 import matplotlib.pyplot as plt
+
 import sys, glob
 import obspy.signal.rotate
 from obspy import UTCDateTime
@@ -42,9 +44,11 @@ Time_window=3600                                    # Length of seismogram time 
 Animate_Trace=True                                  # Variable to initate Animation
 
 # Load database with Green's Functions
+
 # db = instaseis.open_db("syngine://prem_a_2s")
 # db = instaseis.open_db("syngine://ak135f_1s")
 db = instaseis.open_db("syngine://ak135f_2s ")
+
 
 # Read in source
 # evtlatitude=3.0900
@@ -76,6 +80,7 @@ receiver = instaseis.Receiver(latitude=stlatitude, longitude=stlongitude, networ
 distm, az, baz = obspy.geodetics.base.gps2dist_azimuth(evtlatitude, evtlongitude, stlatitude, stlongitude)
 distdg = distm / (6371.e3 * np.pi / 180.)
 
+
 start = EQ_time
 end   = EQ_time+Time_window
 
@@ -84,7 +89,9 @@ st = db.get_seismograms(source=source, receiver=receiver,kind='displacement', dt
 # Add headers to Pickle in .stats
 st[0].stats['evla'] = evtlatitude
 st[0].stats['evlo'] = evtlongitude
+
 st[0].stats['evdp'] = evtdepth/1000 # want EQ depth in km in PICKLE
+
 st[0].stats['stla'] = stlatitude
 st[0].stats['stlo'] = stlongitude
 st[0].stats['dist'] = distdg
@@ -152,5 +159,3 @@ if Vertical_plot:
 
 # if Animate_Trace:
     
-
-

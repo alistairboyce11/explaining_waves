@@ -6,9 +6,10 @@ conda install -c conda-forge instaseis
 check here for DB: http://ds.iris.edu/ds/products/syngine/
 
 # TO DO LIST:
-# Add predicted traveltimes...?
 # Improve source time function
-# Write as callable functions rather than if statements.
+
+Script to test STF's and write out in saved location
+
 
 '''
 import instaseis
@@ -25,13 +26,18 @@ import obspy.geodetics
 
 # print(instaseis.__path__)
 
-if len(sys.argv) <2 or len(sys.argv) > 2:
-    print('python make_synth_movie.py DIST')
-    print('e.g. -> python make_synth_movie.py 120\n')
+if len(sys.argv) <6 or len(sys.argv) > 6:
+    print('python stf_test_make_synth_movie.py DIST STRIKE DIP RAKE SLIPRATE')
+    print('e.g. -> python stf_test_make_synth_movie.py 120 45 45 90 3\n')
     exit()
 else:
-    dist=int(sys.argv[1])
+    dist     =int(sys.argv[1])
+    strike   =int(sys.argv[2])
+    dip      =int(sys.argv[3])
+    rake     =int(sys.argv[4])
+    sliprate =int(sys.argv[5])
     print('Calculating seismogram at ' + str(dist) + ' Degrees epi. dist.')
+    print('With Strike: '+str(strike)+', Dip: '+str(dip)+', Rake: '+str(rake)+', Sliprate: '+str(sliprate))
 
 Quick_plot=False                                    # Quick plot of all components
 Vertical_plot=True                                  # Matplotlib formatted plot of vertical comp.
@@ -50,25 +56,13 @@ Animate_Trace=True                                  # Variable to initate Animat
 db = instaseis.open_db("syngine://ak135f_2s ")
 
 
-# Read in source
-# evtlatitude=3.0900
-# evtlongitude=94.2600
-# evtdepth=28.610
-# source = instaseis.Source(latitude=evtlatitude, longitude=evtlongitude, depth_in_m=evtdepth,
-#                           m_rr = 1.040000e+29,
-#                           m_tt = -4.270000e+28,
-#                           m_pp = -6.100000e+28,
-#                           m_rt = 2.980000e+29,
-#                           m_rp = -2.400000e+29,
-#                           m_tp = 4.260000e+28,
-#                           origin_time=UTCDateTime('2004-12-26 00:58:50'))
-
 # Other option for source definition
 # Earthquake defined at the equator at zero longitude.
 evtlatitude=0
 evtlongitude=0
 evtdepth=10000
-source = instaseis.Source.from_strike_dip_rake(latitude=evtlatitude, longitude=evtlongitude, depth_in_m=evtdepth, strike=60,dip=30, rake=90, M0=1E12, sliprate=1, dt=0.1, origin_time=EQ_time)
+# Rake - Direction of motion on fault measured anticlockwise on fault plane from strike direction
+source = instaseis.Source.from_strike_dip_rake(latitude=evtlatitude, longitude=evtlongitude, depth_in_m=evtdepth, strike=strike ,dip=dip, rake=rake, M0=1E17, sliprate=sliprate, dt=0.1, origin_time=EQ_time)
 
 # Station parameters
 # stlongitude increases to represent increasing epicentral distance.
@@ -123,15 +117,19 @@ if Normalise_waveform:
         channel.data=channel.data/norm
 
 
+'S'+str(strike)+'_D'+str(dip)+'_R'+str(rake)+'_SR'+str(sliprate)+'_'
+
+
+
 #OVERWRITES previous PICKLE with new synthetics
 if Filter_waveform: 
-    filename_PICKLE = '../wavefront_movie_outputs/' + str(dist) + '_seis_synth_bp_'+str(fmin)+'-'+str(fmax)+'.PICKLE'
-    filename_plot_string = '../wavefront_movie_outputs/' + str(dist) + '_seis_synth_bp'
+    filename_PICKLE = '../wavefront_movie_outputs/STF_TESTING/S'+str(strike)+'_D'+str(dip)+'_R'+str(rake)+'_SR'+str(sliprate)+'_'+ str(dist) + '_seis_synth_bp_'+str(fmin)+'-'+str(fmax)+'.PICKLE'
+    filename_plot_string = '../wavefront_movie_outputs/STF_TESTING/Figures/S'+str(strike)+'_D'+str(dip)+'_R'+str(rake)+'_SR'+str(sliprate)+'_' + str(dist) + '_seis_synth_bp'
     st.filter('bandpass', freqmin=fmin,freqmax=fmax, corners=2, zerophase=True)
     st.taper(max_length=5, max_percentage=0.02, type='cosine')
 else:
-    filename_PICKLE = '../wavefront_movie_outputs/' + str(dist) + '_seis_synth.PICKLE'
-    filename_plot_string = '../wavefront_movie_outputs/' + str(dist) + '_seis_synth'
+    filename_PICKLE = '../wavefront_movie_outputs/STF_TESTING/S'+str(strike)+'_D'+str(dip)+'_R'+str(rake)+'_SR'+str(sliprate)+'_' + str(dist) + '_seis_synth.PICKLE'
+    filename_plot_string = '../wavefront_movie_outputs/STF_TESTING/Figures/S'+str(strike)+'_D'+str(dip)+'_R'+str(rake)+'_SR'+str(sliprate)+'_' + str(dist) + '_seis_synth'
 
 st.write(filename_PICKLE,format='PICKLE')  
 
@@ -154,8 +152,8 @@ if Vertical_plot:
     fig.autofmt_xdate()
     plt.xlabel('Time')
     plt.ylabel('Norm Amplitude')
-    # plt.show()
-    plt.savefig(filename_plot_string + '_BXZ.png')
+    plt.savefig(filename_plot_string + '_BXZ.pdf')
+    plt.show()
 
 # if Animate_Trace:
     

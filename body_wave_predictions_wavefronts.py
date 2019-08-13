@@ -54,6 +54,11 @@ rays_dist_max=[110, 150,  181, 181, 160,180, 180 ]
 # this should be adapted, colors should change at reflection points
 color_attenuation=[1.0, 0.5, 0.8, 0.8, 0.3, 0.8, 1.0]
 
+# Receiver station latitude and longitude
+
+stlatitude=12
+stlongitude=56.78
+
 # Direct P-wave test
 # phases_to_plot =['P']
 # rays_dist_min=[0]
@@ -70,8 +75,7 @@ depth_earthquake= 30.
 radius = 6371.
 
 # regular time array in s, 1 s resolution
-time = np.arange(0., 2000.)
-
+time = np.arange(0., 3600.)
 
 # calculate through and save ray paths in interpolated time domain
 save_paths=[]
@@ -143,8 +147,8 @@ ax.set_rmin(0.0)
 # plt.show()
 
 # Generating seismogram
-def generate_seismogram(evtlatitude=3.0900, evtlongitude=94.2600, evtdepth=28.610, stlatitude=12.34,
-stlongitude=56.78):
+def generate_seismogram(evtlatitude=3.0900, evtlongitude=94.2600, evtdepth=28.610, stlatitude=stlatitude,
+stlongitude=stlongitude):
 
         clean = True
         # Load database with Green Functions
@@ -211,23 +215,26 @@ stlongitude=56.78):
 st1=read('../waveform_movie_outputs/seis_synth.PICKLE',format='PICKLE')
 ax1 = plt.subplot(1, 2, 2)
 st1Z=st1.select(channel='BXZ')
-times = st1Z[0].times("matplotlib")
+seis_times = st1Z[0].times("matplotlib")
 data = st1Z[0].data
-#data = np.zeros(st1Z[0].data.shape)
-seis, = ax1.plot(times, data, "r-")
+seis, = ax1.plot(seis_times, data, "r-")
 ax1.xaxis_date()
 fig.autofmt_xdate()
 
 #Add rectangle as reference frame
+direct_P_travel_time = model.get_travel_times(source_depth_in_km=depth_earthquake, distance_in_degree=stlatitude, phase_list=["P"])[0].time
 bottom, top = plt.ylim()
 height  = top - bottom
 start, end = plt.xlim()
 duration = end - start
 width = duration/10
-rect = patches.Rectangle((start+duration/10,bottom), width, height, linewidth=1,facecolor='None', edgecolor='black', zorder=10)
+start_time=(direct_P_travel_time/3600)*duration
+rect = patches.Rectangle((end-start_time-width,bottom), width, height, linewidth=1,facecolor='None', edgecolor='black', zorder=10)
+start_index = np.where(seis_times>=rect.xy[0])[0][0]
+end_index = np.where(seis_times>=(rect.xy[0]+width))[0][0]
 ax1.add_patch(rect)
 
-frame_number = 200
+frame_number = 250
 frame_rate = 25
 
 def animate(t, lines_left, lines_right):
@@ -254,18 +261,20 @@ def animate(t, lines_left, lines_right):
         lines_left[l].set_color(cols)
 
     new_data = np.zeros(data.shape)
-    t_0 = 40 # seismogram starts moving at this point in time
-    if (t>t_0):
-        speed = 500 # pieces of data per frame
-        if t-t_0 < len(data)/speed:
-            new_data = np.array(data[:round(speed*(t-t_0))])
-            new_data = np.pad(new_data, (len(data)-len(new_data),0), mode='constant')
-        elif t-t_0 < (2*len(data))/speed:
-            new_data = np.array(data[round(speed*(t-t_0)) - len(data):])
-            new_data = np.pad(new_data, (0,len(data)-len(new_data)), mode='constant')
-        else:
-            new_data = np.zeros(data.shape)
-    seis.set_data(times, new_data)
+    speed = round(len(data)/3600) # pieces of data per frame
+    if t < len(data)/speed:
+        new_data = np.array(data[:round(speed*(t))])
+        new_data = np.pad(new_data, (len(data)-len(new_data),0), mode='constant')
+        new_data = new_data[start_index:end_index]
+        new_data = np.pad(new_data, (start_index, len(data)-end_index), mode='constant')
+    elif t < (2*len(data))/speed:
+        new_data = np.array(data[round(speed*(t)) - len(data):])
+        new_data = np.pad(new_data, (0,len(data)-len(new_data)), mode='constant')
+        new_data = new_data[start_index:end_index]
+        new_data = np.pad(new_data, (start_index, len(data)-end_index), mode='constant')
+    else:
+        new_data = np.zeros(data.shape)
+    seis.set_data(seis_times, new_data)
     ax1.add_patch(rect)
     return(line,seis)
 

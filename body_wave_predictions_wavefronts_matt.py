@@ -56,7 +56,7 @@ color_attenuation=[1.0, 0.5, 0.8, 0.8, 0.3, 0.8, 1.0]
 
 # Receiver station latitude and longitude
 
-stlatitude=12
+stlatitude=25
 stlongitude=56.78
 
 # Direct P-wave test
@@ -226,21 +226,36 @@ bottom, top = plt.ylim()
 height  = top - bottom
 start, end = plt.xlim()
 duration = end - start
-width = duration/10
+width = duration/5
 start_time=(direct_P_travel_time/3600)*duration # converting direct-P travel time to seismogram time units
 rect = patches.Rectangle((end-start_time-width,bottom), width, height, linewidth=1,facecolor='None', edgecolor='black', zorder=10)
 start_index = np.where(seis_times>=rect.xy[0])[0][0] # time index where rectangle starts
 end_index = np.where(seis_times>=(rect.xy[0]+width))[0][0] # time index where rectangle finishes
 ax1.add_patch(rect)
 
-frame_number = 500 # max 3600
+#Generating text boxes and arrival times
+boxes = np.array([])
+arrival_times = np.array([])
+for phase in phases_to_plot:
+    arrival = model.get_travel_times(source_depth_in_km=depth_earthquake, distance_in_degree=stlatitude, phase_list=[phase])
+    if len(arrival) > 0:
+       textstr = 'Current phase: ' + phase
+       boxes = np.append(boxes, textstr)
+       arrival_times = np.append(arrival[0].time, arrival_times)
+arrival_times = np.append(2., arrival_times)
+arrival_times = np.array([round(a) for a in arrival_times])
+currenttextbox = None # current text box to display
+
+frame_number = 250 # max 3600
 frame_rate = 25 # fps
+count = 0 # counter to track how long a text box should appear for
 
 def animate(t, lines_left, lines_right):
     '''
         Function updates lines with time
     '''
     global save_paths
+    global count, currenttextbox, boxes, arrival_times
 
     for l,line in enumerate(lines_right):
         dists_collected=save_paths[l,0]
@@ -273,8 +288,24 @@ def animate(t, lines_left, lines_right):
         new_data = np.pad(new_data, (start_index, len(data)-end_index), mode='constant')
     else:
         new_data = np.zeros(data.shape)
+    
+    # Checking to see if we should add a text box
+    if np.isin(t, arrival_times):
+        currenttextbox = boxes[0]
+        boxes = np.roll(boxes, 1)
+        arrival_times = np.delete(t, arrival_times)
+        count = 75
+    if count == 0:
+        currenttextbox = None
+    else:
+       count -= 1
+
     seis.set_data(seis_times, new_data) # updating seismogram
     ax1.add_patch(rect) # adding stationary rectangle
+    if currenttextbox is not None:
+        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+        ax1.text(1, 1, currenttextbox, transform=ax.transAxes, fontsize=14, bbox=props)
+    
     return(line,seis)
 
 # Sets up animation

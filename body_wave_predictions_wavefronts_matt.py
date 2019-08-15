@@ -54,16 +54,11 @@ color_attenuation=[1.0, 0.5, 0.8, 0.8, 0.3, 0.8, 1.0]
 # Set epicentral distance from Earthquake to Station - use station longitude to increase this 0-180 allowed
 epi_dist=45
 
-<<<<<<< HEAD
-stlatitude=25
-stlongitude=56.78
-=======
 # EQ and Receiver station latitude and longitude
 evtlatitude=0
 evtlongitude=0
 stlatitude=0
 stlongitude=epi_dist
->>>>>>> 8c85c597b36d3336d7925876bc32c1ab81dfb0b1
 
 # depth of earthquake in km
 depth_earthquake = 10.
@@ -271,20 +266,13 @@ bottom, top = plt.ylim()
 height  = top - bottom
 start, end = plt.xlim()
 duration = end - start
-<<<<<<< HEAD
-width = duration/5
-start_time=(direct_P_travel_time/3600)*duration # converting direct-P travel time to seismogram time units
-rect = patches.Rectangle((end-start_time-width,bottom), width, height, linewidth=1,facecolor='None', edgecolor='black', zorder=10)
-=======
 width = duration/10
 start_time=(direct_P_travel_time/Time_window)*duration # converting direct-P travel time to seismogram time units
 rect = patches.Rectangle((end-start_time-width,bottom), width, height, linewidth=0.5,facecolor='None', edgecolor='black', zorder=10)
->>>>>>> 8c85c597b36d3336d7925876bc32c1ab81dfb0b1
 start_index = np.where(seis_times>=rect.xy[0])[0][0] # time index where rectangle starts
 end_index = np.where(seis_times>=(rect.xy[0]+width))[0][0] # time index where rectangle finishes
 ax1.add_patch(rect)
 
-<<<<<<< HEAD
 #Generating text boxes and arrival times
 boxes = np.array([])
 arrival_times = np.array([])
@@ -297,10 +285,7 @@ for phase in phases_to_plot:
 arrival_times = np.array([round(a) for a in arrival_times])
 currenttextbox = None # current text box to display
 
-frame_number = 250 # max 3600
-=======
 frame_number = Time_window
->>>>>>> 8c85c597b36d3336d7925876bc32c1ab81dfb0b1
 frame_rate = 25 # fps
 count = 0 # counter to track how long a text box should appear for
 

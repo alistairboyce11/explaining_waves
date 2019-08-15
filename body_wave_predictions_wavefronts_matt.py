@@ -242,7 +242,6 @@ for phase in phases_to_plot:
        textstr = 'Current phase: ' + phase
        boxes = np.append(boxes, textstr)
        arrival_times = np.append(arrival[0].time, arrival_times)
-arrival_times = np.append(2., arrival_times)
 arrival_times = np.array([round(a) for a in arrival_times])
 currenttextbox = None # current text box to display
 
@@ -288,15 +287,18 @@ def animate(t, lines_left, lines_right):
         new_data = np.pad(new_data, (start_index, len(data)-end_index), mode='constant')
     else:
         new_data = np.zeros(data.shape)
-    
+
     # Checking to see if we should add a text box
     if np.isin(t, arrival_times):
         currenttextbox = boxes[0]
+        print(currenttextbox)
+        print(t)
         boxes = np.roll(boxes, 1)
-        arrival_times = np.delete(t, arrival_times)
+        arrival_times = np.delete(arrival_times, np.where(arrival_times==t)[0])
         count = 75
     if count == 0:
         currenttextbox = None
+        box.remove()
     else:
        count -= 1
 
@@ -304,7 +306,7 @@ def animate(t, lines_left, lines_right):
     ax1.add_patch(rect) # adding stationary rectangle
     if currenttextbox is not None:
         props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-        ax1.text(1, 1, currenttextbox, transform=ax.transAxes, fontsize=14, bbox=props)
+        box = ax1.text(1, 1, currenttextbox, transform=ax.transAxes, fontsize=14, bbox=props)
     
     return(line,seis)
 

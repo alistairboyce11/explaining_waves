@@ -124,14 +124,13 @@ if Normalise_waveform:
 
 
 #OVERWRITES previous PICKLE with new synthetics
+
+filename_PICKLE = '../wavefront_movie_outputs/' + str(dist) + '_seis_synth.PICKLE'
+filename_plot_string = '../wavefront_movie_outputs/' + str(dist) + '_seis_synth'
+
 if Filter_waveform: 
-    filename_PICKLE = '../wavefront_movie_outputs/' + str(dist) + '_seis_synth_bp_'+str(fmin)+'-'+str(fmax)+'.PICKLE'
-    filename_plot_string = '../wavefront_movie_outputs/' + str(dist) + '_seis_synth_bp'
     st.filter('bandpass', freqmin=fmin,freqmax=fmax, corners=2, zerophase=True)
     st.taper(max_length=5, max_percentage=0.02, type='cosine')
-else:
-    filename_PICKLE = '../wavefront_movie_outputs/' + str(dist) + '_seis_synth.PICKLE'
-    filename_plot_string = '../wavefront_movie_outputs/' + str(dist) + '_seis_synth'
 
 st.write(filename_PICKLE,format='PICKLE')  
 

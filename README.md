@@ -3,10 +3,15 @@
 required:
 mkdir ../wavefront_movie_outputs/
 
-body_wave_predictions_wavefronts.py_
-Creates simplified wavefront movies using ObsPy
+expl_waves_movie.py
+Creates wavefront movies using ObsPy and animates synthetic seismogram
 
-make_synth_movie.py
+phase_finder.py
+Obspy Taup toolkit used to make dictionary that can be queried for phase arrivals, ray parameters, arrival times, turning depths.
 
-Generates a synthetic waveform, saves as PICKLE and saves png snapshots.
+gen_seis.py
+Used to generate synthetic seismogram.
+
+Testing_Scripts
+This has the scripts used to test the functions in scripts above.
 

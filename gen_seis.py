@@ -45,6 +45,8 @@ model = TauPyModel(model='ak135')
 def generate_seismogram(epi_dist=90,evtdepth=0,Time_window=3600,Norm_Wave=False,Filt_Wave=False,Out_loc='../wavefront_movie_outputs/'):
     # Given a bunch of input parameters, use instaseis to make synthetic seismogram.
     
+    Rayleigh_vel = 4.2                                  # Assumed Rayleigh wavespeed in km/s
+        
     # EQ and Receiver station latitude and longitude
     # Fix station longitude to be equivalent to epi_dist.
     evtlatitude=0
@@ -61,7 +63,8 @@ def generate_seismogram(epi_dist=90,evtdepth=0,Time_window=3600,Norm_Wave=False,
     EQ_time=UTCDateTime('2004-12-26 00:00:00')
 
     # Other option for source definition
-    source = instaseis.Source.from_strike_dip_rake(latitude=evtlatitude, longitude=evtlongitude, depth_in_m=evtdepth*1000, strike=60,dip=30, rake=90, M0=1E12, sliprate=1, dt=0.1, origin_time=EQ_time)
+    # source = instaseis.Source.from_strike_dip_rake(latitude=evtlatitude, longitude=evtlongitude, depth_in_m=evtdepth*1000, strike=60,dip=30, rake=90, M0=1E12, sliprate=1, dt=0.1, origin_time=EQ_time)
+    source = instaseis.Source(latitude=evtlatitude, longitude=evtlongitude, depth_in_m=evtdepth*1000, m_rr = 1.0e+29, m_tt = 1.0e+29, m_pp = 1.0e+29, m_rt = 0, m_rp = 0, m_tp = 0, sliprate=1, dt=0.1, origin_time=EQ_time)
 
     # Station parameters
     receiver = instaseis.Receiver(latitude=stlatitude, longitude=stlongitude, network="AB",station="CDE", location="SY")
@@ -100,8 +103,25 @@ def generate_seismogram(epi_dist=90,evtdepth=0,Time_window=3600,Norm_Wave=False,
     st+=stR
     st+=stT
 
-    # Make sure seismogram is correct length
-    st.trim(starttime=start, endtime=end, pad=True, nearest_sample=True, fill_value=0)
+    # Check if Rayleigh waves arrive at seismometer - taper/mute them out.
+
+    # Distance divided by velocity, gives body wave window before Rayleigh wave arrival.
+    Body_wave_window = (distm/1000) / Rayleigh_vel
+
+    if Body_wave_window > Time_window:
+        # No Rayleigh waves on seismogram
+        # just make sure seismogram is correct length
+        print('No interfering Rayleigh phases predicted...')
+        st.trim(starttime=start, endtime=end, pad=True, nearest_sample=True, fill_value=0)
+    else:
+        # Rayleigh waves may exist of seismogram so:
+        # Cut to body_wave_window length, taper, pad to 
+        print('Interfering Rayleigh phases predicted - muting...')
+        body_wave_endtime = EQ_time + Body_wave_window
+        st.trim(starttime=start, endtime=body_wave_endtime, pad=False)
+        st.taper(max_percentage=0.15, type='cosine') # This is a fairly large taper but make it look smoother.
+        st.trim(starttime=start, endtime=end, pad=True, nearest_sample=True, fill_value=0)
+
 
     # Normalize waveform amplitude for each trace
     if Norm_Wave:

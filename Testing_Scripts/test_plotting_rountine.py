@@ -43,11 +43,28 @@ ax.set_xticks([])
 ax.set_yticks([])
 
 # add discontinuities
-rays = model.get_ray_paths(depth_earthquake, epi_dist, phase_list='P')
-discons = rays.model.s_mod.v_mod.get_discontinuity_depths()
+# rays = model.get_ray_paths(depth_earthquake, epi_dist, phase_list='P')
+# discons = rays.model.s_mod.v_mod.get_discontinuity_depths()
+discons = np.array([   0.  ,  35. ,  210. , 2891.5, 5153.5, 6371. ])
 ax.set_yticks(radius - discons)
 ax.xaxis.set_major_formatter(plt.NullFormatter())
 ax.yaxis.set_major_formatter(plt.NullFormatter())
+
+
+# Fill in Earth colors:
+theta = np.arange(0, 2, (1./6000))*np.pi
+
+discons_plot=np.full((len(theta),len(discons)),radius-discons)
+
+# Lith:
+plt.fill_between(theta, discons_plot[:,0],discons_plot[:,2], color=(.4, .35, .34), alpha=0.4, lw=0)
+# Mantle
+plt.fill_between(theta, discons_plot[:,2],discons_plot[:,3], color=(.64, .11, .12), alpha=0.4, lw=0)
+# Outer core:
+plt.fill_between(theta, discons_plot[:,3],discons_plot[:,4], color=(.91, .49, .27), alpha=0.4, lw=0)
+# Inner core:
+plt.fill_between(theta, discons_plot[:,4],discons_plot[:,5], color=(.96, .91, .56), alpha=0.4, lw=0)
+
 
 # Pretty earthquake marker.
 ax.plot([0], [radius - depth_earthquake],
@@ -95,20 +112,23 @@ t_after_eq=time[0]
 amplitude   = np.exp(-time/100) * np.sin(time/TW_duration/np.pi*180)
 ax1.plot(time, amplitude,'r-', linewidth=1)
 
-max_amp    = round(np.max(amplitude))
-min_amp    = round(np.min(amplitude))
-
+max_amp    = np.ceil(np.max(amplitude))
+min_amp    = np.floor(np.min(amplitude))
 
 plt.gca().set_xlim([-tick_pointer_width,TW_duration])
 plt.gca().set_ylim([min_amp,max_amp])
 
-# "Drawing tick" goes rom left side of page up until 1s before start.
+# "Drawing tick" goes from left side of page up until 1s before start.
 tick_x=[-tick_pointer_width, -1]
 tick_y=[amplitude[0],amplitude[0]]
 
-
-plt.xlabel('Time from present (s)', fontsize=10)
 plt.yticks([])                                               # Hides y-axis labels
+# plt.xticks([])                                               # Hides x-axis labels
+
+# plt.xticks(time[0::60], [int(i) for i in time[0::60]/60 ] )
+# plt.xlabel('Time before present (min)', fontsize=10)
+
+
 ax1.plot(tick_x ,tick_y,'b-', linewidth=2) 
 
 # Puts triangle at end of drawing tick
@@ -120,13 +140,6 @@ ax1.text(TW_duration, max_amp, 'Time after Earthquake: '+str(t_after_eq)+'s', ha
 
 
 plt.show()
-
-
-
-
-
-
-
 
 
 

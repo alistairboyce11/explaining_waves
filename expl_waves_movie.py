@@ -45,11 +45,13 @@ model = TauPyModel(model='ak135')
 
 ########################## SET PARAMETERS HERE #############################
 
-epi_dist = 25                             # Epicentral distance from Earthquake to Station - use station longitude to increase this 0-180 allowed
+epi_dist = 35                             # Epicentral distance from Earthquake to Station - use station longitude to increase this 0-180 allowed
 
 depth_earthquake = 0                    # depth of earthquake in km
 
-Propagation_time = 600                  # Propagation time and seismogram length (s) - up to 3600s
+Propagation_time = 900                  # Propagation time and seismogram length (s) - up to 3600s
+
+Seismometer_shake_duration = 10         # Duration of shaking at the seismometer after the arrival of a plotted phase.
 
 # phases_to_plot = ['P', 'PKiKP', 'PKP', 'PcP', 'Pn']
 # color_attenuation=[1.0,  0.5,    0.8 ,  0.3,   0.3]
@@ -64,19 +66,30 @@ Propagation_time = 600                  # Propagation time and seismogram length
 # pf.gen_phase_dict(depth_earthquake=depth_earthquake, extra_phases=[ 'P', 'PKiKP', 'PKP', 'PcP', 'PP', 'PKIKP', 'Pdiff', 'S', 'SKiKS', 'SKS', 'ScS', 'SS', 'SKIKS', 'Sdiff' ], overwrite_phase_defaults=True)
 phases_to_plot=pf.find_phases_at_dist(depth_earthquake=depth_earthquake, epi_dist=epi_dist)
 
-color_attenuation = 1 - 0.1*(np.arange(0,len(phases_to_plot),1))
+color_attenuation = 1 - (np.arange(0,len(phases_to_plot),1)/len(phases_to_plot))
 
 # This gives the most accurate ray propagation but is slow and memory hungry!!!!
 
 rays_dist_min=[]
 rays_dist_max=[]
-
+shake_arr_times=[]
 for i in range(len(phases_to_plot)):
     print(phases_to_plot[i])
     min_rd=pf.find_min_ray_dist(depth_earthquake=depth_earthquake, phase_name=phases_to_plot[i])
     max_rd=pf.find_max_ray_dist(depth_earthquake=depth_earthquake, phase_name=phases_to_plot[i])
     rays_dist_min.append(min_rd)
     rays_dist_max.append(max_rd)
+    arr1=pf.find_arrival_time(depth_earthquake=depth_earthquake, epi_dist=epi_dist, phase_name=phases_to_plot[i])
+    shake_arr_times.append(arr1)
+
+# Find the times to shake the seismometer.
+shake_arr_times_sort=np.floor(np.sort(shake_arr_times))
+
+shake_seis=[]
+for i in range(len(shake_arr_times_sort)):
+    shake_seis.append(np.arange(shake_arr_times_sort[i],shake_arr_times_sort[i]+Seismometer_shake_duration,1))
+
+shake_seis=np.unique(shake_seis)
 
 
 # Check that propagation time is greater that first arrival time.
@@ -87,6 +100,8 @@ if F_A_time > (Propagation_time-10):
     print('Must allow more wave prop. time at '+str(epi_dist)+'deg distance.')
     print('exiting\n')
     sys.exit()
+    
+
 
 #-------------------# NOT READY FOR USE #-------------------#
 
@@ -159,6 +174,8 @@ fig = plt.figure(figsize =(10,5))
 
 # define polar subplot
 ax = plt.subplot(1,2,1, polar = True)
+# ax = plt.subplot2grid((10, 10), (0, 0), colspan=5, rowspan=10, projection='polar')
+
 ax.set_theta_zero_location('N')
 ax.set_theta_direction(-1)
 ax.set_xticks([])
@@ -205,11 +222,17 @@ plt.fill_between(theta, discons_plot[:,4],discons_plot[:,5], color=(.96, .91, .5
 
 
 # Pretty earthquake marker.
-ax.plot([0], [radius - depth_earthquake],
-        marker="*", color="#FEF215", markersize=20, zorder=10,
-        markeredgewidth=1.5, markeredgecolor="0.3",
-        clip_on=False)
+eq_symbol, = ax.plot([0], [radius - depth_earthquake],
+                    marker="*", color="#FEF215", markersize=20, zorder=10,
+                    markeredgewidth=1.5, markeredgecolor="0.3",
+                    clip_on=False)
 
+
+# Add seismometer location
+seismom_symbol, = ax.plot([epi_dist*np.pi/180], [radius+400],
+                        marker=(3, 0, (60-epi_dist)), color='r', markersize=15, zorder=10,
+                        markeredgewidth=1.5, markeredgecolor="0.3",
+                        clip_on=False)
 # Label Earthquake
 plt.annotate("Earthquake!", # this is the text
              (0, radius - depth_earthquake), # this is the point to label
@@ -218,12 +241,6 @@ plt.annotate("Earthquake!", # this is the text
              ha='right',
              fontsize=12) # horizontal alignment can be left, right or center
 
-
-# Add seismometer location
-ax.plot([epi_dist*np.pi/180], [radius+400],
-        marker=(3, 0, (60-epi_dist)), color='r', markersize=15, zorder=10,
-        markeredgewidth=1.5, markeredgecolor="0.3",
-        clip_on=False)
 
 # Label Seismometer
 plt.annotate("Seismometer", # this is the text
@@ -283,6 +300,11 @@ seis_times_cut      = seis_times_new[0:round(TW_duration/delta):1]
 seis_plot_time      = np.arange(0,TW_duration,delta)
 
 ax1 = plt.subplot(1, 2, 2)
+# ax1 = plt.subplot2grid((10, 10), (1, 6), colspan=5, rowspan=8)
+
+ax1.title.set_size(16)
+ax1.title.set_text('Seismograph')
+
 
 # Set seismogram axes as tick pointer width plus TW duration. min->max amp.
 plt.gca().set_xlim([-tick_pointer_width,TW_duration])
@@ -296,17 +318,14 @@ plt.yticks([])                                               # Hides y-axis labe
 # No x-ticks
 # plt.xticks([])                                               # Hides x-axis labels
 
-
 # Things below here are those that change with time.
 # These will need to be in the animate function.
 
-
 # Dynamic x-tick labelling.
-plt.xlabel('Time after Earthquake (min)', fontsize=10)
+plt.xlabel('Time after Earthquake (min)', fontsize=12)
 x_label_pos = seis_plot_time[round((divmod(iter,60)[1])/delta)::round(60/delta)] 
 x_label_val = [ int(np.floor(i)) for i in seis_times_new[round((60+iter)/delta):round((TW_duration/delta)+(iter/delta))+1:round(60/delta)]/60 ][::-1]
 plt.xticks(x_label_pos, x_label_val )
-
 
 # Cut the seismogram up into the correct length
 seis_data_cut       = seis_data_new[0+round(iter/delta):round((TW_duration/delta)+(iter/delta)):1]
@@ -325,60 +344,22 @@ triangle_tick, = ax1.plot(-5, seis_data_cut[-1], marker=(3, 0, (-90)), color='b'
 seis, = ax1.plot(seis_plot_time, seis_data_cut[::-1],'r-', linewidth=1)
 
 # Adds timing counter
-ax1.text(TW_duration, max_amp, 'Minutes after Earthquake: '+str(int(np.floor(iter))), ha="right", va="bottom",
+ax1.text(TW_duration-(TW_duration/40), max_amp-0.05, 'Minutes after Earthquake: '+str(int(np.floor(iter))), ha="right", va="top",
                         fontsize=12, color='black', bbox=dict(facecolor='white', edgecolor='grey', pad=5.0))
 
-
-####### Matts section to plot seismogram #######################
-
-# ax1 = plt.subplot(1, 2, 2)
-# seis, = ax1.plot(seis_times, seis_data, "r-")
-# # ax1.xaxis_date()
-# # fig.autofmt_xdate()
-#
-#
-# #Add rectangle as reference frame
-# # direct_P_travel_time = model.get_travel_times(source_depth_in_km=depth_earthquake, distance_in_degree=epi_dist, phase_list=['P'])[0].time # time for direct P wave to reach station
-#
-# phase_name, phase_arrival_time = pf.find_first_arrival(depth_earthquake=depth_earthquake, epi_dist=epi_dist)
-#
-# top     = round(np.max(seis_data))
-# bottom  = round(np.min(seis_data))
-# start   = round(np.min(seis_times))
-# end     = round(np.max(seis_times))
-#
-# height  = top - bottom
-# duration = end - start
-#
-# width = duration/10
-# start_time=(phase_arrival_time/Propagation_time)*duration # converting direct-P travel time to seismogram time units
-# rect = patches.Rectangle((end-start_time-width,bottom), width, height, linewidth=0.5,facecolor='None', edgecolor='black', zorder=10)
-# start_index = np.where(seis_times>=rect.xy[0])[0][0] # time index where rectangle starts
-# end_index = np.where(seis_times>=(rect.xy[0]+width))[0][0] # time index where rectangle finishes
-# ax1.add_patch(rect)
+# # Adds label for waiting arriving earthquakes waves....
+# plt.annotate('Earthquake waves arriving ', (0, min_amp+0.05), ha="left", va="bottom",
+#             fontsize=12, color='black')
 
 
-####### Matts section to add text boxes #######################
-
-# #Generating text boxes and arrival times
-# boxes = np.array([])
-# arrival_times = np.array([])
-# for phase in phases_to_plot:
-#     # arrival = model.get_travel_times(source_depth_in_km=depth_earthquake, distance_in_degree=epi_dist, phase_list=[phase])
-#     arrival = pf.find_arrival_time(depth_earthquake=depth_earthquake, epi_dist=epi_dist, phase_name=phase)
-#     textstr = 'Current phase: ' + phase
-#     boxes = np.append(boxes, textstr)
-#     arrival_times = np.append(arrival, arrival_times)
-#
-# arrival_times = np.array([round(a) for a in arrival_times])
-# currenttextbox = None # current text box to display
 
 #####################################################################
 
 frame_number    = Propagation_time
 frame_rate      = 25 # fps
 gif_dpi         = 100 # Dots per inch of final gif. DOESNT seem to work!
-count = 0 # counter to track how long a text box should appear for
+count           = 0 # counter to track how long a text box should appear for
+shake_ampl      = 8 # Ampltiude of shaking in kilometers radius.
 
 def animate(t, lines_left, lines_right):
     '''
@@ -404,18 +385,40 @@ def animate(t, lines_left, lines_right):
         line.set_color(cols)
         lines_left[l].set_color(cols)
 
-    
     print('Time step calculated: '+str(t))
 
+    # For each step we want to check if t is odd or even so that we can shake the eartquake and labels
+    if t % 2 == 0:
+        shake_mod = shake_ampl        # t is even
+    else:
+        shake_mod = -shake_ampl        # t is odd
+
+    # We only want the earthquake to shake for a minute and the seismometer to begin shaking after the first arrival.
+
+    if t < 60:
+        quake_shake_mod = shake_mod
+    else:
+        quake_shake_mod = 0
+
+    # if t > F_A_time and t < Propagation_time:
+    if t in shake_seis:
+        seis_shake_mod = shake_mod/2
+    else:
+        seis_shake_mod = 0
+        
+
+    # Pretty earthquake marker.
+    eq_symbol.set_data([0], [radius - depth_earthquake + quake_shake_mod])
+
+    # Add seismometer location
+    seismom_symbol.set_data([epi_dist*np.pi/180], [radius + 400 + seis_shake_mod])
+    
 
     # Think the seismogram need to be flipped, and then plotted
     # seis, = ax1.plot(seis_plot_time, seis_data_cut[::-1],'r-', linewidth=1)
 
     seis_data_cut       = seis_data_new[0+round(t/delta):round((TW_duration/delta)+(t/delta)):1]
     seis.set_data(seis_plot_time, seis_data_cut[::-1]) # updating seismogram
-
-
-
 
     # "Drawing tick" goes from left side of page up until 1s before start.
     tick_x=[-tick_pointer_width, -1]
@@ -430,55 +433,28 @@ def animate(t, lines_left, lines_right):
     #                         markeredgewidth=0.5, markeredgecolor="0.3", clip_on=False)
 
     # Adds timing counter
-    ax1.text(TW_duration, max_amp, 'Minutes after Earthquake: '+str(int(np.floor(t/60))), ha="right", va="bottom",
+    ax1.text(TW_duration-(TW_duration/40), max_amp-0.05, 'Minutes after Earthquake: '+str(int(np.floor(t/60))), ha="right", va="top",
                             fontsize=12, color='black', bbox=dict(facecolor='white', edgecolor='grey', pad=5.0))
 
+    # # Adds label for waiting arriving earthquakes waves....
+    # # if t < F_A_time:
+    # wait_rem=t % 4
+    # wait_point='.'
+    # waiting=wait_rem*wait_point
+    # # print('Earthquake waves arriving '+str(waiting))
+    # ax1.text(0, min_amp+0.05, 'Earthquake waves arriving '+str(waiting), ha="left", va="bottom",fontsize=12, color='black')
+
     # Dynamic x-tick labelling.
-    plt.xlabel('Time after Earthquake (min)', fontsize=10)
+    plt.xlabel('Time after Earthquake (min)', fontsize=12)
     x_label_pos = seis_plot_time[round((divmod(t,60)[1])/delta)::round(60/delta)] 
     x_label_val = [ int(np.floor(i)) for i in seis_times_new[round((60+t)/delta):round((TW_duration/delta)+(t/delta))+1:round(60/delta)]/60 ][::-1]
     plt.xticks(x_label_pos, x_label_val )
 
 
+    return(line,eq_symbol,seismom_symbol,seis,drawing_tick,triangle_tick)
 
-    #
-    # new_data = np.zeros(seis_data.shape)
-    # # speed = len(seis_data)/Propagation_time # pieces of data per frame
-    # speed = len(seis_data)/3600 # pieces of data per frame
-    # if t < len(seis_data)/speed: # seismogram moving into frame
-    #     new_data = np.array(seis_data[:round(speed*(t))]) # removing data off the edge of the frame
-    #     new_data = np.pad(new_data, (len(seis_data)-len(new_data),0), mode='constant') # padding out with zeros
-    #     new_data = new_data[start_index:end_index] # removing data outisde of the reference zone
-    #     new_data = np.pad(new_data, (start_index, len(seis_data)-end_index), mode='constant') # padding out with zeros
-    # elif t < (2*len(seis_data))/speed: # seismogram moving out of frame
-    #     new_data = np.array(seis_data[round(speed*(t)) - len(seis_data):])
-    #     new_data = np.pad(new_data, (0,len(seis_data)-len(new_data)), mode='constant')
-    #     new_data = new_data[start_index:end_index]
-    #     new_data = np.pad(new_data, (start_index, len(seis_data)-end_index), mode='constant')
-    # else:
-    #     new_data = np.zeros(seis_data.shape)
-
-    # # Checking to see if we should add a text box
-    # if np.isin(t, arrival_times):
-    #     currenttextbox = boxes[0]
-    #     print(currenttextbox)
-    #     print(t)
-    #     boxes = np.roll(boxes, 1)
-    #     arrival_times = np.delete(arrival_times, np.where(arrival_times==t)[0])
-    #     count = 75
-    # if count == 0:
-    #     currenttextbox = None
-    #     box.remove()
-    # else:
-    #    count -= 1
-
-    # ax1.add_patch(rect) # adding stationary rectangle
-
-    # if currenttextbox is not None:
-    #     props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-    #     box = ax1.text(1, 1, currenttextbox, transform=ax.transAxes, fontsize=14, bbox=props)
     
-    return(line,seis,drawing_tick,triangle_tick)
+# plt.tight_layout()
 
 # Sets up animation
 animation = FuncAnimation(

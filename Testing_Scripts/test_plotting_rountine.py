@@ -35,6 +35,8 @@ depth_earthquake = 0
 radius = 6371                                       # radius of Earth in km
 
 fig = plt.figure(figsize =(10,5))
+st = fig.suptitle("Inside the Deep Earth", fontsize=20)
+
 # ax = plt.subplot2grid((10, 10), (0, 0), colspan=5, rowspan=10, projection='polar')
 # define polar subplot
 ax = plt.subplot(1,2,1, projection='polar')

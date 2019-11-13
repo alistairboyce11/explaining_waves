@@ -49,15 +49,16 @@ epi_dist = 80                             # Epicentral distance from Earthquake 
 
 depth_earthquake = 0                    # depth of earthquake in km
 
-Propagation_time = 1200                  # Propagation time and seismogram length (s) - up to 3600s
+Propagation_time = 1800                  # Propagation time and seismogram length (s) - up to 3600s
 
 Seismometer_shake_duration = 10         # Duration of shaking at the seismometer after the arrival of a plotted phase.
 
-# Set details of specific phase to investigate.
-key_phase='P'
-key_phase_A_time=pf.find_arrival_time(depth_earthquake=depth_earthquake, epi_dist=epi_dist, phase_name=key_phase[0])
-
 ############## Plot which phases: ######################
+
+### TEST 2.0 Jennys CMB movie
+pf.gen_phase_dict(depth_earthquake=depth_earthquake, extra_phases=['S', 'SKS', 'ScS', 'SKiKS', 'SS', 'SKKS'], overwrite_phase_defaults=True)
+phases_to_plot=['S', 'SKS', 'ScS', 'SKiKS', 'SS', 'SKKS' ]
+color_attenuation=[1.0, 0.8, 0.6 ,  0.4,     0.6,   0.2  ]
 
 ### TEST 1.0
 # phases_to_plot = ['P', 'PcP']
@@ -71,8 +72,17 @@ key_phase_A_time=pf.find_arrival_time(depth_earthquake=depth_earthquake, epi_dis
 # This gives the most accurate ray propagation but is slow and memory hungry!!!!
 
 # pf.gen_phase_dict(depth_earthquake=depth_earthquake, extra_phases=[ 'P', 'PKiKP', 'PKP', 'PcP', 'PP', 'PKIKP', 'Pdiff', 'S', 'SKiKS', 'SKS', 'ScS', 'SS', 'SKIKS', 'Sdiff' ], overwrite_phase_defaults=True)
-phases_to_plot=pf.find_phases_at_dist(depth_earthquake=depth_earthquake, epi_dist=epi_dist)
-color_attenuation = 1 - (np.arange(0,len(phases_to_plot),1)/len(phases_to_plot))
+
+# phases_to_plot=pf.find_phases_at_dist(depth_earthquake=depth_earthquake, epi_dist=epi_dist)
+# color_attenuation = 1 - (np.arange(0,len(phases_to_plot),1)/len(phases_to_plot))
+
+
+############### Raypath to plot ######################
+
+key_phase='ScS'                           # Set details of specific phase to investigate.
+
+key_phase_A_time=pf.find_arrival_time(depth_earthquake=depth_earthquake, epi_dist=epi_dist, phase_name=key_phase[0])
+
 
 #######################################################################################
 
@@ -190,12 +200,26 @@ lines_right=[]
 fig = plt.figure(figsize =(10,5))
 # fig = plt.figure(figsize =(20,11)) # Probably want this for final graphics....?
 st = fig.suptitle("Seeing inside the Earth", fontsize=20)
+
+################ First plot the model in the background. #################
+
+im='../wavefront_movie_home_screen/Model_graphics_flat.png'
+background_figure = plt.imread(im)
+
+#create axes in the background to show cartesian image
+ax0 = fig.add_subplot(121, label="Background Figure")
+ax0.imshow(background_figure)
+ax0.axis("off")
+
+##########################################################################
+
 # define polar subplot
-ax = plt.subplot(1,2,1, polar = True)
+ax = fig.add_subplot(121, polar=True, label="Polar axes")
 # ax = plt.subplot2grid((10, 10), (0, 0), colspan=5, rowspan=10, projection='polar')
 
 ax.set_theta_zero_location('N')
 ax.set_theta_direction(-1)
+ax.set_facecolor("None")
 ax.set_xticks([])
 ax.set_yticks([])
 
@@ -218,28 +242,29 @@ for p in range(len(save_paths)):
 
 # add discontinuities
 # discons = rays.model.s_mod.v_mod.get_discontinuity_depths()
-discons = np.array([   0.  ,  35. ,  210. , 2891.5, 5153.5, 6371. ])
+# discons = np.array([   0.  ,  35. ,  210. , 2891.5, 5153.5, 6371. ])
+discons = np.array([   0., 2891.5, 5153.5, 6371. ])
 ax.set_yticks(radius - discons)
 ax.xaxis.set_major_formatter(plt.NullFormatter())
 ax.yaxis.set_major_formatter(plt.NullFormatter())
 
 
-# Fill in Earth colors:
-theta = np.arange(0, 2, (1./6000))*np.pi
-discons_plot=np.full((len(theta),len(discons)),radius-discons)
-
-# Lith:
-plt.fill_between(theta, discons_plot[:,0],discons_plot[:,2], color=(.4, .35, .34), alpha=0.4, lw=0)
-# Mantle
-plt.fill_between(theta, discons_plot[:,2],discons_plot[:,3], color=(.64, .11, .12), alpha=0.4, lw=0)
-# Outer core:
-plt.fill_between(theta, discons_plot[:,3],discons_plot[:,4], color=(.91, .49, .27), alpha=0.4, lw=0)
-# Inner core:
-plt.fill_between(theta, discons_plot[:,4],discons_plot[:,5], color=(.96, .91, .56), alpha=0.4, lw=0)
-
+# # Fill in Earth colors:
+# theta = np.arange(0, 2, (1./6000))*np.pi
+# discons_plot=np.full((len(theta),len(discons)),radius-discons)
+#
+# # Lith:
+# plt.fill_between(theta, discons_plot[:,0],discons_plot[:,2], color=(.4, .35, .34), alpha=0.4, lw=0)
+# # Mantle
+# plt.fill_between(theta, discons_plot[:,2],discons_plot[:,3], color=(.64, .11, .12), alpha=0.4, lw=0)
+# # Outer core:
+# plt.fill_between(theta, discons_plot[:,3],discons_plot[:,4], color=(.91, .49, .27), alpha=0.4, lw=0)
+# # Inner core:
+# plt.fill_between(theta, discons_plot[:,4],discons_plot[:,5], color=(.96, .91, .56), alpha=0.4, lw=0)
+#
 
 # Add the first point of the key ray path
-key_ray_path, = ax.plot(key_path[0,0:t],radius - key_path[1,0:t],'r-', linewidth=1)
+key_ray_path, = ax.plot(key_path[0,0:t],radius - key_path[1,0:t],'b-', linewidth=1)
 
 
 # Pretty earthquake marker.
@@ -268,9 +293,9 @@ plt.annotate("Earthquake!", # this is the text
 plt.annotate("Seismometer", # this is the text
              (epi_dist*np.pi/180, radius), # this is the point to label
              textcoords="offset points", # how to position the text
-             xytext=(10,10), # distance from text to points (x,y)
+             xytext=(10,-10), # distance from text to points (x,y)
              ha='left',
-             # rotation=(-epi_dist),
+             rotation=(-epi_dist),
              fontsize=12) # horizontal alignment can be left, right or center
              
              
@@ -321,10 +346,10 @@ seis_data_new       = np.concatenate([seis_buffer, seis_data])
 seis_times_cut      = seis_times_new[0:round(TW_duration/delta):1]
 seis_plot_time      = np.arange(0,TW_duration,delta)
 
-ax1 = plt.subplot(1, 2, 2)
+ax1 = fig.add_subplot(122, label="Seismograph")
 # ax1 = plt.subplot2grid((10, 10), (1, 6), colspan=5, rowspan=8)
 
-ax1.title.set_size(16)
+ax1.title.set_size(14)
 ax1.title.set_text('Seismograph')
 
 
@@ -376,7 +401,7 @@ ax1.text(0, min_amp+0.05, 'Earthquake waves arriving', ha="left", va="bottom",fo
 #####################################################################
 
 frame_number    = Propagation_time
-frame_rate      = 25 # fps
+frame_rate      = 30 # fps
 gif_dpi         = 100 # Dots per inch of final gif. DOESNT seem to work!
 count           = 0 # counter to track how long a text box should appear for
 shake_ampl      = 20 # Ampltiude of shaking in kilometers radius.

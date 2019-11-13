@@ -10,10 +10,10 @@ import numpy as np
 # matplotlib is a plotting toolkit
 import matplotlib.pyplot as plt
 # Obspy is a seismic toolkit
-import obspy
-from obspy.taup import TauPyModel
-from obspy.taup import plot_travel_times
-from obspy.taup import plot_ray_paths
+# import obspy
+# from obspy.taup import TauPyModel
+# from obspy.taup import plot_travel_times
+# from obspy.taup import plot_ray_paths
 
 import matplotlib
 from matplotlib import transforms as tf
@@ -22,12 +22,12 @@ matplotlib.rc('animation', html='html5')
 import matplotlib.patches as patches
 
 # velocity model as a function of depth.
-model = TauPyModel(model='ak135')
+# model = TauPyModel(model='ak135')
 
 ########################## SET PARAMETERS HERE #############################
 
 # Set epicentral distance from Earthquake to Station - use station longitude to increase this 0-180 allowed
-epi_dist=20
+epi_dist=80
 
 # depth of earthquake in km
 depth_earthquake = 0
@@ -37,37 +37,50 @@ radius = 6371                                       # radius of Earth in km
 fig = plt.figure(figsize =(10,5))
 st = fig.suptitle("Inside the Deep Earth", fontsize=20)
 
+################ First plot the model in the background. #################
+
+im='../../wavefront_movie_home_screen/Model_graphics_flat.png'
+background_figure = plt.imread(im)
+
+#create axes in the background to show cartesian image
+ax0 = fig.add_subplot(121, label="Background Figure")
+ax0.imshow(background_figure)
+ax0.axis("off")
+
+##########################################################################
+
+
 # ax = plt.subplot2grid((10, 10), (0, 0), colspan=5, rowspan=10, projection='polar')
 # define polar subplot
-ax = plt.subplot(1,2,1, projection='polar')
+ax = fig.add_subplot(121, polar=True, label="Polar axes")
 ax.set_theta_zero_location('N')
+ax.set_facecolor("None")
 ax.set_theta_direction(-1)
 ax.set_xticks([])
 ax.set_yticks([])
 
+
 # add discontinuities
-# rays = model.get_ray_paths(depth_earthquake, epi_dist, phase_list='P')
-# discons = rays.model.s_mod.v_mod.get_discontinuity_depths()
 discons = np.array([   0.  ,  35. ,  210. , 2891.5, 5153.5, 6371. ])
 ax.set_yticks(radius - discons)
 ax.xaxis.set_major_formatter(plt.NullFormatter())
 ax.yaxis.set_major_formatter(plt.NullFormatter())
 
-
-# Fill in Earth colors:
-theta = np.arange(0, 2, (1./6000))*np.pi
-
-discons_plot=np.full((len(theta),len(discons)),radius-discons)
-
-# Lith:
-plt.fill_between(theta, discons_plot[:,0],discons_plot[:,2], color=matplotlib.colors.to_hex((.4, .35, .34)), alpha=0.4, lw=0)
-# Mantle
-plt.fill_between(theta, discons_plot[:,2],discons_plot[:,3], color=matplotlib.colors.to_hex((.64, .11, .12)), alpha=0.4, lw=0)
-# Outer core:
-plt.fill_between(theta, discons_plot[:,3],discons_plot[:,4], color=matplotlib.colors.to_hex((.91, .49, .27)), alpha=0.4, lw=0)
-# Inner core:
-plt.fill_between(theta, discons_plot[:,4],discons_plot[:,5], color=matplotlib.colors.to_hex((.96, .91, .56)), alpha=0.4, lw=0)
-
+#
+# # Fill in Earth colors:
+# theta = np.arange(0, 2, (1./6000))*np.pi
+#
+# discons_plot=np.full((len(theta),len(discons)),radius-discons)
+#
+# # Lith:
+# plt.fill_between(theta, discons_plot[:,0],discons_plot[:,2], color=matplotlib.colors.to_hex((.4, .35, .34)), alpha=0.4, lw=0)
+# # Mantle
+# plt.fill_between(theta, discons_plot[:,2],discons_plot[:,3], color=matplotlib.colors.to_hex((.64, .11, .12)), alpha=0.4, lw=0)
+# # Outer core:
+# plt.fill_between(theta, discons_plot[:,3],discons_plot[:,4], color=matplotlib.colors.to_hex((.91, .49, .27)), alpha=0.4, lw=0)
+# # Inner core:
+# plt.fill_between(theta, discons_plot[:,4],discons_plot[:,5], color=matplotlib.colors.to_hex((.96, .91, .56)), alpha=0.4, lw=0)
+#
 
 # Pretty earthquake marker.
 eq_symbol, = ax.plot([0], [radius - depth_earthquake],
@@ -94,9 +107,9 @@ seismom_symbol, = ax.plot([epi_dist*np.pi/180], [radius+400],
 plt.annotate("Seismometer", # this is the text
              (epi_dist*np.pi/180, radius), # this is the point to label
              textcoords="offset points", # how to position the text
-             xytext=(10,10), # distance from text to points (x,y)
+             xytext=(10,-10), # distance from text to points (x,y)
              ha='left',
-             # rotation=(-epi_dist),
+             rotation=(-epi_dist),
              fontsize=12) # horizontal alignment can be left, right or center
              
              
@@ -104,11 +117,10 @@ ax.set_rmax(radius)
 ax.set_rmin(0.0)
 
 
-
 TW_duration=300                                             # Sesimogram window length (s)
 tick_pointer_width=20                                       # drawing tick length (s)
 
-ax1 = plt.subplot(1, 2, 2)
+ax1 = plt.subplot(122)
 # ax1 = plt.subplot2grid((10, 10), (1, 6), colspan=5, rowspan=8)
 ax1.title.set_size(16)
 ax1.title.set_text('Seismograph')

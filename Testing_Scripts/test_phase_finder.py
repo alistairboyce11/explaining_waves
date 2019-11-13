@@ -18,16 +18,16 @@ except NameError:
 Test_1 = False # Test production of phase dictionary
 Test_2 = False # Test reading of phase dictionary
 Test_3 = False # Test find phases at dist
-Test_4 = False # Test find min phase dist
-Test_5 = False # Test find max phase dist
+Test_4 = True # Test find min phase dist
+Test_5 = True # Test find max phase dist
 Test_6 = False # Test find first arrival
-Test_7 = True  # Test find arrival time
+Test_7 = False  # Test find arrival time
 
 depth_earthquake = 0
 
 
 if Test_1:
-    pf.gen_phase_dict(depth_earthquake=0, extra_phases=[ 'PPP', 'PKKP' ], overwrite_phase_defaults=False)
+    pf.gen_phase_dict(depth_earthquake=0, extra_phases=[ 'SKiKS', 'PKiKP'], overwrite_phase_defaults=False)
 
 if Test_2:
     phase_dist=pf.load_phase_dict(depth_earthquake=0)
@@ -42,13 +42,13 @@ if Test_3:
     print(phase_list)
     
 if Test_4:
-    phase_name='Pdiff'
+    phase_name='SKiKS'
     mrd=pf.find_min_ray_dist(depth_earthquake=depth_earthquake, phase_name=phase_name)
     print('Min ray dist for '+str(phase_name)+' is: ' + str(mrd)+'\n')
 
 
 if Test_5:
-    phase_name='Pdiff'
+    phase_name='SKiKS'
     mrd=pf.find_max_ray_dist(depth_earthquake=depth_earthquake, phase_name=phase_name)
     print('Max ray dist for '+str(phase_name)+' is: ' + str(mrd)+'\n')
     

@@ -139,13 +139,13 @@ def gen_phase_dict(depth_earthquake=0, extra_phases=None, overwrite_phase_defaul
 def check_dict_present(depth_earthquake=0):
     # Checks if dictionary is present in current directory or needs generating
     
-    if not os.path.exists('./phase_dist_'+str(depth_earthquake)+'km_depth.json'):
-        print('run function above to generate phase dictonary')
-        gen_phase_dict(depth_earthquake=0, extra_phases=None)
-    # else:
+    if os.path.exists('./phase_dist_'+str(depth_earthquake)+'km_depth.json'):
         # print('phase_dist dictonary already present.')
-        
-    return
+        return True
+    else:
+        # print('run function to generate phase dictonary')
+        # gen_phase_dict(depth_earthquake=depth_earthquake, extra_phases=None)
+        return False
     
 ##################################################################################
     
@@ -163,7 +163,8 @@ def load_phase_dict(depth_earthquake=0):
 def find_first_arrival(depth_earthquake=0, epi_dist=90):
     # Return name, time of first arrival for given distance
 
-    check_dict_present(depth_earthquake=depth_earthquake)
+    if not check_dict_present(depth_earthquake=depth_earthquake):
+        gen_phase_dict(depth_earthquake=depth_earthquake, extra_phases=None)
     phase_dist=load_phase_dict(depth_earthquake=depth_earthquake)
     
     # Get an iterable list of keys
@@ -191,7 +192,8 @@ def find_first_arrival(depth_earthquake=0, epi_dist=90):
 def find_arrival_time(depth_earthquake=0, epi_dist=90, phase_name='P'):
     # Return time of phase arrival at given distance
 
-    check_dict_present(depth_earthquake=depth_earthquake)
+    if not check_dict_present(depth_earthquake=depth_earthquake):
+        gen_phase_dict(depth_earthquake=depth_earthquake, extra_phases=None)
     phase_dist=load_phase_dict(depth_earthquake=depth_earthquake)
     
     phase_list=find_phases_at_dist(depth_earthquake=depth_earthquake, epi_dist=epi_dist)
@@ -213,7 +215,8 @@ def find_arrival_time(depth_earthquake=0, epi_dist=90, phase_name='P'):
 def find_min_ray_dist(depth_earthquake=0, phase_name='P'):
     # Return minimum epicentral distance for given phase
 
-    check_dict_present(depth_earthquake=depth_earthquake)
+    if not check_dict_present(depth_earthquake=depth_earthquake):
+        gen_phase_dict(depth_earthquake=depth_earthquake, extra_phases=None)
     phase_dist=load_phase_dict(depth_earthquake=depth_earthquake)
 
     # Get an iterable list of keys
@@ -244,7 +247,8 @@ def find_min_ray_dist(depth_earthquake=0, phase_name='P'):
 def find_max_ray_dist(depth_earthquake=0, phase_name='P'):
     # Return maximum epicentral distance for given phase
 
-    check_dict_present(depth_earthquake=depth_earthquake)
+    if not check_dict_present(depth_earthquake=depth_earthquake):
+        gen_phase_dict(depth_earthquake=depth_earthquake, extra_phases=None)
     phase_dist=load_phase_dict(depth_earthquake=depth_earthquake)
 
     # Get an iterable list of keys
@@ -268,7 +272,8 @@ def find_max_ray_dist(depth_earthquake=0, phase_name='P'):
 def find_phases_at_dist(depth_earthquake=0, epi_dist=90):
     # Return a list of phases arriving at a given distance
     
-    check_dict_present(depth_earthquake=depth_earthquake)
+    if not check_dict_present(depth_earthquake=depth_earthquake):
+        gen_phase_dict(depth_earthquake=depth_earthquake, extra_phases=None)
     phase_dist=load_phase_dict(depth_earthquake=depth_earthquake)
 
     phase_list = list(phase_dist[str(epi_dist)].keys())

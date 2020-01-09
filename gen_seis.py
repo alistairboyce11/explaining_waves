@@ -174,10 +174,11 @@ def load_synth_seis(epi_dist=90,evtdepth=0,Out_loc='../wavefront_movie_outputs/'
     File_Wave = Out_loc+'synth_seis_'+ str(evtdepth)+'km_'+str(epi_dist)+'deg.PICKLE'
 
     synth=read(File_Wave,format='PICKLE')
-    synth_BXZ=synth.select(channel='BXZ')
+    # synth_BXZ=synth.select(channel='BXZ')
     
-    # return the vertical component of synthetic obspy.core.stream.Stream
-    return(synth_BXZ)
+    # return the synthetic obspy.core.stream.Stream
+    # the channel is now selected in the main script.
+    return(synth)
 
 
 

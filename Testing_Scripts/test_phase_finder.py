@@ -18,11 +18,11 @@ except NameError:
 Test_1 = False # Test production of phase dictionary
 Test_2 = False # Test reading of phase dictionary
 Test_3 = False # Test find phases at dist
-Test_4 = True # Test find min phase dist
-Test_5 = True # Test find max phase dist
+Test_4 = False # Test find min phase dist
+Test_5 = False # Test find max phase dist
 Test_6 = False # Test find first arrival
 Test_7 = False  # Test find arrival time
-
+Test_8 = True
 depth_earthquake = 0
 
 
@@ -65,5 +65,9 @@ if Test_7:
     print('At '+str(epi_dist)+'deg, '+phase_name+' arrives at '+str(arrival_time)+'s')
     
     
+if Test_8:
+    depth_earthquake=0
+    present=pf.check_dict_present(depth_earthquake=depth_earthquake)
+    print(str(present))
     
     

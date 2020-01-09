@@ -9,6 +9,8 @@
 import numpy as np
 # matplotlib is a plotting toolkit
 import matplotlib.pyplot as plt
+# from matplotlib.gridspec import GridSpec
+
 # Obspy is a seismic toolkit
 # import obspy
 # from obspy.taup import TauPyModel
@@ -19,7 +21,6 @@ import matplotlib
 from matplotlib import transforms as tf
 from IPython.display import HTML, Image
 matplotlib.rc('animation', html='html5')
-import matplotlib.patches as patches
 
 # velocity model as a function of depth.
 # model = TauPyModel(model='ak135')
@@ -27,44 +28,47 @@ import matplotlib.patches as patches
 ########################## SET PARAMETERS HERE #############################
 
 # Set epicentral distance from Earthquake to Station - use station longitude to increase this 0-180 allowed
-epi_dist=80
+epi_dist = 60
+
+# Angular anticlockwise rotation of earthquake and rest of plot from North
+theta_earthquake = -30
 
 # depth of earthquake in km
 depth_earthquake = 0
 
 radius = 6371                                       # radius of Earth in km
 
-fig = plt.figure(figsize =(10,5))
+fig = plt.figure(figsize =(16,10))
 st = fig.suptitle("Inside the Deep Earth", fontsize=20)
 
 ################ First plot the model in the background. #################
 
-im='../../wavefront_movie_home_screen/Model_graphics_flat.png'
-background_figure = plt.imread(im)
-
-#create axes in the background to show cartesian image
+# #create axes in the background to show cartesian image
 ax0 = fig.add_subplot(121, label="Background Figure")
-ax0.imshow(background_figure)
+im='../../wavefront_movie_home_screen/Model_graphics_vector_final_V2.png'
+background_figure = plt.imread(im)
+# ax0 = plt.subplot2grid((10, 16), (1, 1), colspan=6, rowspan=7)
+# ax0.set_facecolor('none')
+ax0.imshow(background_figure, alpha=0.5)
 ax0.axis("off")
 
 ##########################################################################
 
-
-# ax = plt.subplot2grid((10, 10), (0, 0), colspan=5, rowspan=10, projection='polar')
 # define polar subplot
-ax = fig.add_subplot(121, polar=True, label="Polar axes")
-ax.set_theta_zero_location('N')
-ax.set_facecolor("None")
-ax.set_theta_direction(-1)
-ax.set_xticks([])
-ax.set_yticks([])
+# ax1 = plt.subplot2grid((10, 16), (1, 1), colspan=6, rowspan=7, polar=True)
+ax1 = fig.add_subplot(121, polar=True, label="Polar axes", alpha=0.5)
+ax1.set_theta_zero_location('N', offset=theta_earthquake)
+ax1.set_facecolor('none')
+ax1.set_theta_direction(-1)
+ax1.set_xticks([])
+ax1.set_yticks([])
 
 
 # add discontinuities
 discons = np.array([   0.  ,  35. ,  210. , 2891.5, 5153.5, 6371. ])
-ax.set_yticks(radius - discons)
-ax.xaxis.set_major_formatter(plt.NullFormatter())
-ax.yaxis.set_major_formatter(plt.NullFormatter())
+# ax.set_yticks(radius - discons)
+# ax.xaxis.set_major_formatter(plt.NullFormatter())
+# ax.yaxis.set_major_formatter(plt.NullFormatter())
 
 #
 # # Fill in Earth colors:
@@ -83,7 +87,7 @@ ax.yaxis.set_major_formatter(plt.NullFormatter())
 #
 
 # Pretty earthquake marker.
-eq_symbol, = ax.plot([0], [radius - depth_earthquake],
+eq_symbol, = ax1.plot([0], [radius - depth_earthquake],
                     marker="*", color="#FEF215", markersize=20, zorder=10,
                     markeredgewidth=1.5, markeredgecolor="0.3",
                     clip_on=False)
@@ -98,8 +102,8 @@ plt.annotate("Earthquake!", # this is the text
 
 
 # Add seismometer location
-seismom_symbol, = ax.plot([epi_dist*np.pi/180], [radius+400],
-                        marker=(3, 0, (60-epi_dist)), color='r', markersize=15, zorder=10,
+seismom_symbol, = ax1.plot([epi_dist*np.pi/180], [radius+400],
+                        marker=(3, 0, (60-epi_dist+theta_earthquake)), color='r', markersize=15, zorder=10,
                         markeredgewidth=1.5, markeredgecolor="0.3",
                         clip_on=False)
 
@@ -109,27 +113,26 @@ plt.annotate("Seismometer", # this is the text
              textcoords="offset points", # how to position the text
              xytext=(10,-10), # distance from text to points (x,y)
              ha='left',
-             rotation=(-epi_dist),
+             # rotation=(-epi_dist),
              fontsize=12) # horizontal alignment can be left, right or center
-             
-             
-ax.set_rmax(radius)
-ax.set_rmin(0.0)
 
+
+ax1.set_rmax(radius)
+ax1.set_rmin(0.0)
 
 TW_duration=300                                             # Sesimogram window length (s)
 tick_pointer_width=20                                       # drawing tick length (s)
 
-ax1 = plt.subplot(122)
-# ax1 = plt.subplot2grid((10, 10), (1, 6), colspan=5, rowspan=8)
-ax1.title.set_size(16)
-ax1.title.set_text('Seismograph')
+ax2 = fig.add_subplot(122, label="Seismograph")
+# ax2 = plt.subplot2grid((10, 16), (1, 9), colspan=8, rowspan=7)
+ax2.title.set_size(16)
+ax2.title.set_text('Seismograph')
 time = np.arange(0, TW_duration, 1);
 
 t_after_eq=time[0]
 
 amplitude   = np.exp(-time/100) * np.sin(time/TW_duration/np.pi*180)
-ax1.plot(time, amplitude,'r-', linewidth=1)
+ax2.plot(time, amplitude,'r-', linewidth=1)
 
 max_amp    = np.ceil(np.max(amplitude))
 min_amp    = np.floor(np.min(amplitude))
@@ -148,13 +151,13 @@ plt.yticks([])                                               # Hides y-axis labe
 # plt.xlabel('Time before present (min)', fontsize=10)
 
 
-ax1.plot(tick_x ,tick_y,'b-', linewidth=2) 
+ax2.plot(tick_x ,tick_y,'b-', linewidth=2) 
 
 # Puts triangle at end of drawing tick
-ax1.plot(-5, amplitude[0], marker=(3, 0, (-90)), color='b', markersize=10, zorder=10,
+ax2.plot(-5, amplitude[0], marker=(3, 0, (-90)), color='b', markersize=10, zorder=10,
         markeredgewidth=0.5, markeredgecolor="0.3", clip_on=False)
         
-ax1.text(TW_duration-(TW_duration/40), max_amp-0.05, 'Time after Earthquake: '+str(t_after_eq)+'s', ha="right", va="top",
+ax2.text(TW_duration-(TW_duration/40), max_amp-0.05, 'Time after Earthquake: '+str(t_after_eq)+'s', ha="right", va="top",
         fontsize=12, color='black', bbox=dict(facecolor='white', edgecolor='grey', pad=5.0))
 
 wait_rem=3
@@ -162,9 +165,20 @@ wait_point='.'
 waiting=wait_rem*wait_point
 
 # # Adds label for waiting arriving earthquakes waves....
-ax1.text(0, min_amp+0.05, 'Earthquake waves arriving '+str(waiting), ha="left", va="bottom",
+ax2.text(0, min_amp+0.05, 'Earthquake waves arriving '+str(waiting), ha="left", va="bottom",
                         fontsize=12, color='black')
+                        
+                        
+# # Place white space padding around the plots
+# # Axes to add labels below plot #2
+# ax2b = plt.subplot2grid((10, 16), (8, 9), colspan=8, rowspan=2)
+# ax2b.set_facecolor('red')
+# ax2b.set_xticks([])
+# ax2b.set_yticks([])
+# # ax2b.axis("off")
 
+# plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0.3, hspace=1)
+# plt.tight_layout()
 
 plt.show()
 

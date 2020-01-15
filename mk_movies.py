@@ -69,42 +69,43 @@ import expl_waves_movie as ewm
 
 # P-wave imaging
 ewm.mk_mov(epi_dist=70, theta_earthquake=50, depth_earthquake=0, propagation_time=1200, seis_channel='BXZ', filter_params=[],
-            extra_phases=['PP', 'PKKP', 'SS', 'SKKS'], overwrite_phase_defaults=False, phases_to_plot=['P', 'PcP', 'PKP', 'PKiKP', 'PKIKP', 'PKKP', 'PP'], color_attenuation=[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], key_phase=['P'], 
+            extra_phases=['PP', 'PKKP', 'SS', 'SKKS'], overwrite_phase_defaults=False, phases_to_plot=['P', 'PcP', 'PKiKP', 'PP'], color_attenuation=[1.0, 1.0, 1.0, 1.0], key_phase=['P'], 
             output_location='../wavefront_movie_outputs/', gif_name_str='P_Tomo', title='Imaging the mantle', load_image='Al.png',
             LL_L1_text='', LL_L2_text='', LR_L1_text='', LR_L2_text='',
             mov_pause_times=[], mov_fps=30, mov_dpi=150)
 
 # ScS CMB imaging
 ewm.mk_mov(epi_dist=80, theta_earthquake=-32, depth_earthquake=0, propagation_time=1800, seis_channel='BXT', filter_params=[],
-            extra_phases=['PP', 'PKKP', 'SS', 'SKKS'], overwrite_phase_defaults=False, phases_to_plot=['S', 'ScS', 'SKS', 'SKKS', 'SS', 'SKiKS', 'SKIKS'], color_attenuation=[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], key_phase=['ScS'], 
+            extra_phases=['PP', 'PKKP', 'SS', 'SKKS'], overwrite_phase_defaults=False, phases_to_plot=['S', 'ScS', 'SKS', 'SKKS', 'SS', 'SKiKS'], color_attenuation=[1.0, 1.0, 1.0, 1.0, 1.0, 1.0], key_phase=['ScS'], 
             output_location='../wavefront_movie_outputs/', gif_name_str='ScS_CMB', title='Investigating the Core-Mantle Boundary', load_image='',
             LL_L1_text='', LL_L2_text='', LR_L1_text='', LR_L2_text='',
             mov_pause_times=[], mov_fps=30, mov_dpi=150)
 
 # Diffraction
 ewm.mk_mov(epi_dist=145, theta_earthquake=-18, depth_earthquake=0, propagation_time=1400, seis_channel='BXZ', filter_params=[],
-            extra_phases=None, overwrite_phase_defaults=False, phases_to_plot=['P', 'PcP', 'Pdiff', 'PKP', 'PKIKP', 'PKiKP'], color_attenuation=[1.0, 1.0, 1.0, 1.0, 1.0, 1.0], key_phase=['Pdiff'], 
+            extra_phases=['PP', 'PKKP', 'SS', 'SKKS'], overwrite_phase_defaults=False, phases_to_plot=['PP', 'Pdiff', 'PKP', 'PKIKP', 'PKiKP'], color_attenuation=[1.0, 1.0, 1.0, 1.0, 1.0], key_phase=['Pdiff'], 
             output_location='../wavefront_movie_outputs/', gif_name_str='Core_Diff', title='Core diffracted waves', load_image='',
             LL_L1_text='', LL_L2_text='', LR_L1_text='', LR_L2_text='',
             mov_pause_times=[], mov_fps=30, mov_dpi=150)
 
 # Discovery of the Inner Core
 ewm.mk_mov(epi_dist=152, theta_earthquake=10, depth_earthquake=0, propagation_time=1800, seis_channel='BXZ', filter_params=[],
-            extra_phases=['PP', 'PKKP', 'SS', 'SKKS'], overwrite_phase_defaults=False, phases_to_plot=['P', 'PcP', 'PKP', 'PKiKP', 'PKIKP', 'PKKP', 'PP'], color_attenuation=[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], key_phase=['PKIKP'], 
+            extra_phases=['PP', 'PKKP', 'SS', 'SKKS'], overwrite_phase_defaults=False, phases_to_plot=['PP', 'Pdiff', 'PKP', 'PKIKP', 'PKiKP'], color_attenuation=[1.0, 1.0, 1.0, 1.0, 1.0], key_phase=['PKIKP'], 
             output_location='../wavefront_movie_outputs/', gif_name_str='Disc_IC', title='Detecting the Inner Core', load_image='Lehmann.png',
             LL_L1_text='', LL_L2_text='', LR_L1_text='', LR_L2_text='',
             mov_pause_times=[], mov_fps=30, mov_dpi=150)
 
 # Liquid Outer Core
 ewm.mk_mov(epi_dist=130, theta_earthquake=-18, depth_earthquake=0, propagation_time=1800, seis_channel='BXZ', filter_params=[],
-            extra_phases=None, overwrite_phase_defaults=False, phases_to_plot=['P', 'PKP', 'PKIKP', 'PKiKP', 'S', 'SKS', 'SKIKS', 'SKiKS'], color_attenuation=[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], key_phase=['P'], 
+            extra_phases=['PP', 'PKKP', 'SS', 'SKKS'], overwrite_phase_defaults=False, phases_to_plot=['PP', 'Pdiff', 'PKIKP', 'PKiKP', 'Sdiff', 'SKS', 'SKIKS', 'SKiKS', 'SS', 'SKKS'], 
+            color_attenuation=[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], key_phase=['SS'], 
             output_location='../wavefront_movie_outputs/', gif_name_str='Disc_OC', title='Proving the Outer Core is Liquid', load_image='Oldham.png',
             LL_L1_text='', LL_L2_text='', LR_L1_text='', LR_L2_text='',
             mov_pause_times=[], mov_fps=30, mov_dpi=150)
 # Full wavefield
 ewm.mk_mov(epi_dist=179, theta_earthquake=78, depth_earthquake=0, propagation_time=1800, seis_channel='BXZ', filter_params=[],
-            extra_phases=['PP', 'PKKP', 'SS', 'SKKS'], overwrite_phase_defaults=False, phases_to_plot=['P', 'PcP', 'Pdiff', 'PKP', 'PKiKP', 'PKIKP', 'S', 'ScS', 'Sdiff', 'SKS', 'SKiKS', 'SKIKS'], 
-            color_attenuation=[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], key_phase=['PKIKP'], 
+            extra_phases=['PP', 'PKKP', 'SS', 'SKKS'], overwrite_phase_defaults=False, phases_to_plot=['PP', 'PKIKP', 'SS', 'SKIKS', 'SKKS'], 
+            color_attenuation=[1.0, 1.0, 1.0, 1.0, 1.0], key_phase=['PKIKP'], 
             output_location='../wavefront_movie_outputs/', gif_name_str='Full_Wavefield', title='Complex P and S waves', load_image='',
             LL_L1_text='', LL_L2_text='', LR_L1_text='', LR_L2_text='',
             mov_pause_times=[], mov_fps=30, mov_dpi=150)

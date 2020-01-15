@@ -1,7 +1,7 @@
 '''
 This script contains the function used to generate synthetic seismogram
 
-generate_seismogram(epi_dist=90,evtdepth=0,Time_window=3600,Norm_Wave=False,Filt_Wave=False,Out_loc='../wavefront_movie_outputs/'):
+generate_seismogram(epi_dist=90,evtdepth=0,time_window=3600,norm_wave=False,filter_params=[fmin, fmax],out_loc='../wavefront_movie_outputs/'):
     Given a bunch of input parameters, use instaseis to make synthetic seismogram.
 
 '''
@@ -42,7 +42,7 @@ model = TauPyModel(model='ak135')
 
 ##################################################################################
 
-def generate_seismogram(epi_dist=90,evtdepth=0,Time_window=3600,Norm_Wave=False,Filt_Wave=False,Out_loc='../wavefront_movie_outputs/'):
+def generate_seismogram(epi_dist=90,evtdepth=0,time_window=3600,norm_wave=False,filter_params=[],out_loc='../wavefront_movie_outputs/'):
     # Given a bunch of input parameters, use instaseis to make synthetic seismogram.
     
     Rayleigh_vel = 4.2                                  # Assumed Rayleigh wavespeed in km/s
@@ -54,7 +54,7 @@ def generate_seismogram(epi_dist=90,evtdepth=0,Time_window=3600,Norm_Wave=False,
     stlatitude=0
     stlongitude=epi_dist
     
-    File_Wave = Out_loc+'synth_seis_'+ str(evtdepth)+'km_'+str(epi_dist)+'deg.PICKLE'
+    File_Wave = out_loc+'synth_seis_'+ str(evtdepth)+'km_'+str(epi_dist)+'deg.PICKLE'
         
     # Load database with Green Functions
     # db = instaseis.open_db("syngine://prem_a_2s")
@@ -74,7 +74,7 @@ def generate_seismogram(epi_dist=90,evtdepth=0,Time_window=3600,Norm_Wave=False,
     distdg = distm / (6371.e3 * np.pi / 180.)
 
     start = EQ_time
-    end   = EQ_time+Time_window 
+    end   = EQ_time+time_window 
 
     # Run function to get waveforms
     st = db.get_seismograms(source=source, receiver=receiver,kind='displacement', dt=0.1)
@@ -108,7 +108,7 @@ def generate_seismogram(epi_dist=90,evtdepth=0,Time_window=3600,Norm_Wave=False,
     # Distance divided by velocity, gives body wave window before Rayleigh wave arrival.
     Body_wave_window = (distm/1000) / Rayleigh_vel
 
-    if Body_wave_window > Time_window:
+    if Body_wave_window > time_window:
         # No Rayleigh waves on seismogram
         # just make sure seismogram is correct length
         print('No interfering Rayleigh phases predicted...')
@@ -124,20 +124,21 @@ def generate_seismogram(epi_dist=90,evtdepth=0,Time_window=3600,Norm_Wave=False,
 
 
     # Normalize waveform amplitude for each trace
-    if Norm_Wave:
+    if norm_wave:
         for channel in st:
             print(channel.stats['channel'])
             print(channel.stats['starttime'], channel.stats['endtime'])
-            windowed=channel[np.where(channel.times() >= 0) and np.where(channel.times() <= Time_window )]
+            windowed=channel[np.where(channel.times() >= 0) and np.where(channel.times() <= time_window )]
             norm=np.max(np.abs(windowed))
             channel.data=channel.data/norm
 
 
     #OVERWRITES previous PICKLE with new synthetics
 
-    if Filt_Wave:
-        fmin=0.02
-        fmax=0.5
+    if len(filter_params) > 0:
+        fmin=filter_params[0] # e.g., 0.02
+        fmax=filter_params[1] # e.g., 0.5
+        print('Bandpass filtering with corners: '+str(fmin)+ ' - '+str(fmax))
         st.filter('bandpass', freqmin=fmin,freqmax=fmax, corners=2, zerophase=True)
         st.taper(max_length=5, max_percentage=0.02, type='cosine')
 
@@ -147,14 +148,14 @@ def generate_seismogram(epi_dist=90,evtdepth=0,Time_window=3600,Norm_Wave=False,
 
 ##################################################################################
     
-def check_synth_seis(epi_dist=90,evtdepth=0,Time_window=3600,Out_loc='../wavefront_movie_outputs/'):
+def check_synth_seis(epi_dist=90,evtdepth=0,time_window=3600,out_loc='../wavefront_movie_outputs/'):
     # Checks if seismogram is present or needs generating, returns fp=True/False
     
-    File_Wave = Out_loc+'synth_seis_'+ str(evtdepth)+'km_'+str(epi_dist)+'deg.PICKLE'
+    File_Wave = out_loc+'synth_seis_'+ str(evtdepth)+'km_'+str(epi_dist)+'deg.PICKLE'
     
     if os.path.exists(File_Wave):
         seis=read(File_Wave, format='PICKLE')
-        if round(seis[0].stats['endtime']-seis[0].stats['starttime']) == Time_window:
+        if round(seis[0].stats['endtime']-seis[0].stats['starttime']) == time_window:
             print('File '+str(File_Wave)+ ' present :)\n')
             fp=True
         else:
@@ -168,10 +169,10 @@ def check_synth_seis(epi_dist=90,evtdepth=0,Time_window=3600,Out_loc='../wavefro
     
 ##################################################################################
     
-def load_synth_seis(epi_dist=90,evtdepth=0,Out_loc='../wavefront_movie_outputs/'):
+def load_synth_seis(epi_dist=90,evtdepth=0,out_loc='../wavefront_movie_outputs/'):
     # Loads synthetic seismogram into memory - vertical component.
     
-    File_Wave = Out_loc+'synth_seis_'+ str(evtdepth)+'km_'+str(epi_dist)+'deg.PICKLE'
+    File_Wave = out_loc+'synth_seis_'+ str(evtdepth)+'km_'+str(epi_dist)+'deg.PICKLE'
 
     synth=read(File_Wave,format='PICKLE')
     # synth_BXZ=synth.select(channel='BXZ')
@@ -179,24 +180,4 @@ def load_synth_seis(epi_dist=90,evtdepth=0,Out_loc='../wavefront_movie_outputs/'
     # return the synthetic obspy.core.stream.Stream
     # the channel is now selected in the main script.
     return(synth)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

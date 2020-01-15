@@ -15,7 +15,7 @@ setup_plot(title='title',plot_width=16,plot_height=10, polar_plot_offset=0):
                 ax2 = overlying polar plot that will hold the wavefronts
                 ax3 = Cartesian plot for the seismogram 
 
-'''
+'''#
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
@@ -69,17 +69,16 @@ def setup_plot(title='', load_image='', plot_width=16, plot_height=10, epi_dist=
     axlr.set_yticks([])
     
     # Add small axes for the descriptive image in the plot centre - axdi
-    axdi = fig.add_axes([0.45, 0.125, 0.10, 0.1], projection=None, polar=False, facecolor='green',frame_on=False)
+    axdi = fig.add_axes([0.45, 0.1, 0.10, 0.1], projection=None, polar=False, facecolor='green',frame_on=False)
     axdi.set_xticks([])
     axdi.set_yticks([])
     
     # Load the image that is going in the small axes at the bottom of the plot - usually a png
     if len(load_image) > 0:
-        di_loc = home + '/Dropbox/File_Sharing/GITHUB_AB/wavefront_movie_images/' + load_image
+        di_loc = home + '/Google_Drive/GITHUB_AB/wavefront_movie_images/' + load_image
         di_figure = plt.imread(di_loc)
     else:
         di_figure=np.array([])
-    
     
     ################ First plot the model in the background. #################
 
@@ -88,7 +87,7 @@ def setup_plot(title='', load_image='', plot_width=16, plot_height=10, epi_dist=
     # ax1.text(0.01, 0.95, "ax1", size=12) # Add some labels if you wish
     ax1.set_xticks([])
     ax1.set_yticks([])
-    im = home + '/Dropbox/File_Sharing/GITHUB_AB/wavefront_movie_home_screen/Model_graphics_vector_final_V2.png'
+    im = home + '/Google_Drive/GITHUB_AB/wavefront_movie_home_screen/Model_graphics_vector_final_V2.png'
     background_figure = plt.imread(im)
     ax1.imshow(background_figure, alpha=1)
 
@@ -101,7 +100,6 @@ def setup_plot(title='', load_image='', plot_width=16, plot_height=10, epi_dist=
     ax2.set_xticks([])
     ax2.set_yticks([])
     
-
     # Label Earthquake
     
     # Bunch of if statements to get the alignment of Earthquake label correct:

@@ -36,26 +36,22 @@ import setup_plot_area as spa
 ########################## SET PARAMETERS HERE #############################
 
 # Set epicentral distance from Earthquake to Station - use station longitude to increase this 0-180 allowed
-epi_dist = 40
+epi_dist = 179
 
 # Angular anticlockwise rotation of earthquake and rest of plot from North
-theta_earthquake = -60
+theta_earthquake = 78
 
 # depth of earthquake in km
 depth_earthquake = 0
 
 radius = 6371                                       # radius of Earth in km
 
-title = 'Inside the Deep Earthss'
-
-LL_L1_text='Label for waves L1'
-LL_L2_text=''
+title = 'Movie title'
+LL_L1_text='Label for wavefronts L1'
+LL_L2_text='Label for wavefronts L2'
 LR_L1_text='Label for seismogram L1'
-LR_L2_text=''
+LR_L2_text='Label for seismogram L2'
 load_image='Lehmann.png'
-
-
-
 
 # ##################### SET UP THE PLOTTING AREA HERE #######################
 
@@ -132,27 +128,19 @@ ax3.text(0, min_amp+0.05, 'Earthquake waves arriving '+str(waiting), ha="left", 
 
 if len(LL_L1_text) > 0: 
     # Layer 1 text - left label
-    axll.text(0.5, 0.7, LL_L1_text, ha="center", va="center",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
+    axll.text(0.5, 0.5, LL_L1_text, ha="center", va="center",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
 if len(LL_L2_text) > 0: 
     # Layer 2 text - left label
-    axll.text(0.5, 0.3, LL_L2_text, ha="center", va="center",fontsize=10, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
+    axll.text(0.5, 0.0, LL_L2_text, ha="center", va="center",fontsize=12, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
 if len(LR_L1_text) > 0: 
     # Layer 1 text - right label
-    axlr.text(0.5, 0.7, LR_L1_text, ha="center", va="center",fontsize=14, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0)) # Add some labels if you wish
+    axlr.text(0.5, 0.5, LR_L1_text, ha="center", va="center",fontsize=14, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0)) # Add some labels if you wish
 if len(LR_L2_text) > 0: 
     # Layer 2 text - right label
-    axlr.text(0.5, 0.3, LR_L2_text, ha="center", va="center",fontsize=10, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0)) # Add some labels if you wish
+    axlr.text(0.5, 0.0, LR_L2_text, ha="center", va="center",fontsize=12, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0)) # Add some labels if you wish
 
 # Plot descriptive image (di) between the labels.
 if len(di_figure) > 0: 
     axdi.imshow(di_figure, alpha=1)
 
-
-
 plt.show()
-
-
-
-
-
-

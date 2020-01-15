@@ -15,6 +15,8 @@
 
     seis_channel=seis_channel                      # Seismogram channel to use for seismograph, BXZ, BXR, BXT, Use BXT to remove P waves.
 
+    filter_params=filter_params                     # filter parameters for synthetic seismogram [fmin, fmax]. e.g., [0.02, 0.5]
+    
     extra_phases=extra_phases                       # Extra phases to add to the phase dictionary = e.g., ['SKS', 'ScS', 'SKiKS', 'SS', 'SKKS']
     
     overwrite_phase_defaults=overwrite_phase_defaults # Overwrite the default phases in the created dictionary = True/False
@@ -23,9 +25,9 @@
     
     color_attenuation=color_attenuation               # List of attentuation factors for phases = e.g., [1.0, 0.4]
     
-    key_phase=key_phase                               # Key phase to plot raypath = e.g., 'P'
+    key_phase=key_phase                               # Key phase to plot raypath = e.g., ['P']
     
-    output_Location=output_Location                 # String to locate waveform outputs
+    output_location=output_location                 # String to locate waveform outputs
     
     gif_name_str=gif_name_str                        # String to name movie = e.g., 'CMB1'
 
@@ -40,6 +42,8 @@
     LR_L1_text='Label for seismogram L1'           # Layer 1 text for RHS seismogram plot
 
     LR_L2_text='Label for seismogram L2'           # Layer 2 text for RHS seismogram plot
+    
+    mov_pause_times=mov_pause_times             # Times at which to pause movie for 5 seconds
     
     mov_fps=mov_fps                                 # frames per second for the gif
     
@@ -97,11 +101,11 @@ import setup_plot_area as spa
 model = TauPyModel(model='ak135')
 
     # Funciton called to make the explaing waves movies.
-def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time=600, seis_channel='BXZ', 
-            extra_phases=None, overwrite_phase_defaults=False, phases_to_plot=['P'], color_attenuation=[1.0], key_phase='P', 
-            output_Location='../wavefront_movie_outputs/', gif_name_str='', title='Inside the Deep Earth', load_image='',
+def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time=600, seis_channel='BXZ', filter_params=[],
+            extra_phases=None, overwrite_phase_defaults=False, phases_to_plot=['P'], color_attenuation=[1.0], key_phase=['P'], 
+            output_location='../wavefront_movie_outputs/', gif_name_str='', title='Inside the Deep Earth', load_image='',
             LL_L1_text='', LL_L2_text='', LR_L1_text='', LR_L2_text='',
-            mov_fps=30, mov_dpi=150):
+            mov_pause_times=[], mov_fps=30, mov_dpi=150):
 
     global save_paths
 
@@ -111,7 +115,7 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
                         propagation_time=propagation_time, seis_channel=seis_channel, 
                         extra_phases=extra_phases, 
                         phases_to_plot=phases_to_plot, color_attenuation=color_attenuation, key_phase=key_phase, 
-                        output_Location=output_Location, gif_name_str=gif_name_str, title=title, load_image=load_image,
+                        output_location=output_location, gif_name_str=gif_name_str, title=title, load_image=load_image,
                         LL_L1_text=LL_L1_text, LL_L2_text=LL_L2_text, LR_L1_text=LR_L1_text, LR_L2_text=LR_L2_text,
                         mov_fps=mov_fps,mov_dpi=mov_dpi)
 
@@ -164,6 +168,26 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
         print('exiting\n')
         sys.exit()
     
+    
+    #################### Calculate the frames vector ####################################
+    # This is a way to dictate when the movie pauses.
+    
+    mov_pause_length = 5  # Define number of seconds pause for each mov_pause_time
+    # Make the frames vector as integer intervals from zero to propagation_time -1
+    frames=np.arange(0, propagation_time , 1)
+    
+    if len(mov_pause_times) > 0:
+        # Make frames vector by looping through and adding pauses (repeated frames)
+        for i in range(len(mov_pause_times)):
+            frames_start=list(frames[0:mov_pause_times[i]])
+            frames_pause=[mov_pause_times[i] for j in range(mov_pause_length)]
+            frames_end=list(frames[mov_pause_times[i]+1:])
+            frames=frames_start+frames_pause+frames_end
+        if frames[0] != 0 or frames[-1] != propagation_time-1:
+            print('Something wrong with calculation of frames vector')
+            print('exiting\n')
+            sys.exit()
+    
     #-------------------# NOT READY FOR USE #-------------------#
 
     # Need to work on amplitude attentuation factor......
@@ -210,7 +234,7 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
     key_path=[]
     key_dists_collected=[]
     key_depths_collected=[]
-    key_ray = model.get_ray_paths(depth_earthquake, epi_dist, phase_list=[key_phase])
+    key_ray = model.get_ray_paths(depth_earthquake, epi_dist, phase_list=key_phase)
     # Interpolate to regulard time array
     key_dists = np.interp(time, key_ray[0].path['time'], key_ray[0].path['dist']) #, left = np.nan, right = np.nan
     key_depths = np.interp(time, key_ray[0].path['time'], key_ray[0].path['depth']) #, left = np.nan, right = np.nan
@@ -297,23 +321,22 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
     ######################################################################
 
     # Waveform characteristics
-    Normalise_Waveform=True                             # Normalise waveform amplitude
-    Filter_Waveform=False                               # Filter waveform with bandpass filter; params below
+    normalise_waveform=True                             # Normalise waveform amplitude
 
     # Check if synthetic seismogram is present
-    synthetic_present=gs.check_synth_seis(epi_dist=epi_dist,evtdepth=depth_earthquake,Time_window=propagation_time, Out_loc=output_Location)
+    synthetic_present=gs.check_synth_seis(epi_dist=epi_dist,evtdepth=depth_earthquake,time_window=propagation_time, out_loc=output_location)
 
     if synthetic_present:
         # Just go ahead and read it in
-        synth=gs.load_synth_seis(epi_dist=epi_dist,evtdepth=depth_earthquake,Out_loc=output_Location)
+        synth=gs.load_synth_seis(epi_dist=epi_dist,evtdepth=depth_earthquake,out_loc=output_location)
         synth_channel=synth.select(channel=seis_channel)
     else:
         # Call gen_seis function
         print('Calling synthetic seismogram generation')
-        gs.generate_seismogram(epi_dist=epi_dist,evtdepth=depth_earthquake,Time_window=propagation_time,Norm_Wave=Normalise_Waveform,Filt_Wave=Filter_Waveform,Out_loc=output_Location)
+        gs.generate_seismogram(epi_dist=epi_dist,evtdepth=depth_earthquake,time_window=propagation_time,norm_wave=normalise_waveform,filter_params=filter_params,out_loc=output_location)
 
         # Now read it in
-        synth=gs.load_synth_seis(epi_dist=epi_dist,evtdepth=depth_earthquake,Out_loc=output_Location)
+        synth=gs.load_synth_seis(epi_dist=epi_dist,evtdepth=depth_earthquake,out_loc=output_location)
         synth_channel=synth.select(channel=seis_channel)
 
     ######################################################################
@@ -504,19 +527,19 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
         # Layer 1 text - left label
         if len(LL_L1_text) > 0: 
             if t > 0.5*F_A_time:
-                axll.text(0.5, 0.7, LL_L1_text, ha="center", va="center",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
+                axll.text(0.5, 0.5, LL_L1_text, ha="center", va="center",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
         # Layer 2 text - left label
         if len(LL_L2_text) > 0: 
             if t > 0.75*F_A_time:
-                axll.text(0.5, 0.3, LL_L2_text, ha="center", va="center",fontsize=10, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
+                axll.text(0.5, 0.0, LL_L2_text, ha="center", va="center",fontsize=12, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
         # Layer 1 text - right label
         if len(LR_L1_text) > 0: 
             if t > 1.25*F_A_time:
-                axlr.text(0.5, 0.7, LR_L1_text, ha="center", va="center",fontsize=14, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0)) # Add some labels if you wish
+                axlr.text(0.5, 0.5, LR_L1_text, ha="center", va="center",fontsize=14, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0)) # Add some labels if you wish
         # Layer 2 text - right label
         if len(LR_L2_text) > 0: 
             if t > 1.25*F_A_time:
-                axlr.text(0.5, 0.3, LR_L2_text, ha="center", va="center",fontsize=10, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0)) # Add some labels if you wish
+                axlr.text(0.5, 0.0, LR_L2_text, ha="center", va="center",fontsize=12, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0)) # Add some labels if you wish
 
         # Plot descriptive image (di) between the labels.
         if len(di_figure) > 0: 
@@ -531,8 +554,10 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
                               fig,
                               # The function that does the updating of the Figure
                               animate,
-                              # Frame information (here just frame number)
-                              frame_number,
+                              # Vector containing frame numbers
+                              frames=frames,
+                              # # Frame information (here just frame number)
+                              # frame_number,
                               # Extra arguments to the animate function
                               fargs=[lines_left, lines_right],
                               # Frame-time in ms; i.e. for a given frame-rate x, 1000/x

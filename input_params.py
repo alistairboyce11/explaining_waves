@@ -14,6 +14,8 @@ This script contains the function that tests input parameters to explaining wave
 
     seis_channel=seis_channel                      # Seismogram channel to use for seismograph, BXZ, BXR, BXT, Use BXT to remove P waves.
 
+    filter_params=filter_params                     # filter parameters for synthetic seismogram [fmin, fmax]. e.g., [0.02, 0.5]
+
     extra_phases=extra_phases                       # Extra phases to add to the phase dictionary = e.g., ['SKS', 'ScS', 'SKiKS', 'SS', 'SKKS']
     
     overwrite_phase_defaults=overwrite_phase_defaults # Overwrite the default phases in the created dictionary = True/False
@@ -22,15 +24,25 @@ This script contains the function that tests input parameters to explaining wave
     
     color_attenuation=color_attenuation               # List of attentuation factors for phases = e.g., [1.0, 0.4]
     
-    key_phase=key_phase                               # Key phase to plot raypath = e.g., 'P'
+    key_phase=key_phase                               # Key phase to plot raypath = e.g., ['P']
     
-    output_Location=output_Location                 # String to locate waveform outputs
+    output_location=output_location                 # String to locate waveform outputs
     
     gif_name_str=gif_name_str                        # String to name movie = e.g., 'CMB1'
 
     title=title                                     # Movie title = e.g., 'Inside the Deep Earth'
 
     load_image=load_image                          # Descriptive image to be plotted at lower middle when text labels show.
+
+    LL_L1_text='Label for waves L1'                # Layer 1 text for LHS wavefront plot
+
+    LL_L2_text='Label for waves L2'                # Layer 2 text for LHS wavefront plot
+
+    LR_L1_text='Label for seismogram L1'           # Layer 1 text for RHS seismogram plot
+
+    LR_L2_text='Label for seismogram L2'           # Layer 2 text for RHS seismogram plot
+    
+    mov_pause_times=mov_pause_times             # Times at which to pause movie for 5 seconds
 
     mov_fps=mov_fps                                 # frames per second for the gif
     
@@ -45,11 +57,11 @@ import os.path
 from pathlib import Path
 home = str(Path.home())
 
-def test_input_params(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time=600, seis_channel='BXZ', 
+def test_input_params(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time=600, seis_channel='BXZ', filter_params=[],
             extra_phases=None, phases_to_plot=['P'], color_attenuation=[1.0], key_phase='P', 
-            output_Location = '../wavefront_movie_outputs/', gif_name_str='',  title='title', load_image='Lehmann.png',
+            output_location = '../wavefront_movie_outputs/', gif_name_str='',  title='title', load_image='Lehmann.png',
             LL_L1_text='', LL_L2_text='', LR_L1_text='', LR_L2_text='',
-            mov_fps=30,mov_dpi=150):
+            mov_pause_times=[], mov_fps=30,mov_dpi=150):
 
 
 
@@ -79,6 +91,11 @@ def test_input_params(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propa
         print('Bad seismometer channel selected - seis_channel')
         sys.exit()
 
+    if len(filter_params) > 0:
+        if not isinstance(filter_params, list) or len(filter_params) != 2:
+            print('Bad specification of filter_params - must be 2 parameter list')
+            sys.exit()
+
     if not extra_phases == None:
         if not isinstance(extra_phases, list):
             print('Bad specification of extra_phases')
@@ -92,16 +109,16 @@ def test_input_params(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propa
         print('Bad specification of color_attenuation')
         sys.exit()
 
-    if not isinstance(key_phase, str):
-        print('Bad specification of key_phase - must be string')
+    if not isinstance(key_phase, list)  or len(key_phase) != 1:
+        print('Bad specification of key_phase - must be list length 1')
         sys.exit()
 
-    if not isinstance(output_Location, str):
-        print('Bad specification of output_Location - must be string')
+    if not isinstance(output_location, str):
+        print('Bad specification of output_location - must be string')
         sys.exit()
     else:
-        if not os.path.exists(output_Location):
-            os.makedirs(output_Location)
+        if not os.path.exists(output_location):
+            os.makedirs(output_location)
 
     if len(gif_name_str) > 0:
         if not isinstance(gif_name_str, str):
@@ -110,7 +127,7 @@ def test_input_params(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propa
     else:
         gif_name_str='seis_movie_'+str(epi_dist)+'deg'
 
-    Filename_GIF = output_Location + gif_name_str + '.gif'
+    Filename_GIF = output_location + gif_name_str + '.gif'
     
     if len(title) > 0:
         if not isinstance(title, str):
@@ -121,7 +138,7 @@ def test_input_params(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propa
         if not isinstance(load_image, str):
             print('Bad specification of load_image - must be string')
             sys.exit()
-        if not os.path.exists(home + '/Dropbox/File_Sharing/GITHUB_AB/wavefront_movie_images/' + load_image):
+        if not os.path.exists(home + '/Google_Drive/GITHUB_AB/wavefront_movie_images/' + load_image):
             print('Bad specification of load_image - path does NOT exist')
             sys.exit()
 
@@ -142,6 +159,11 @@ def test_input_params(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propa
     if len(LR_L2_text) > 0:
         if not isinstance(LR_L2_text, str):
             print('Bad specification of LR_L2_text - must be string')
+            sys.exit()
+
+    if len(mov_pause_times) > 0:
+        if not isinstance(mov_pause_times, list):
+            print('Bad specification of mov_pause_times - must be list')
             sys.exit()
 
     if not isinstance(mov_fps, int):

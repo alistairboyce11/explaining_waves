@@ -42,7 +42,15 @@
     LR_L1_text='Label for seismogram L1'           # Layer 1 text for RHS seismogram plot
 
     LR_L2_text='Label for seismogram L2'           # Layer 2 text for RHS seismogram plot
-    
+
+    LL_L1_time = 1                                  # Layer 1 text time for LHS wavefront plot as a function of First arrival time
+
+    LL_L2_time = 1                                  # Layer 2 text time for LHS wavefront plot as a function of First arrival time
+
+    LR_L1_time = 1                                  # Layer 1 text time for RHS seismogram plot as a function of First arrival time
+
+    LR_L2_time = 1                                  # Layer 2 text time for RHS seismogram plot as a function of First arrival time
+
     mov_pause_times=mov_pause_times             # Times at which to pause movie for 5 seconds
     
     mov_fps=mov_fps                                 # frames per second for the gif
@@ -105,6 +113,7 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
             extra_phases=None, overwrite_phase_defaults=False, phases_to_plot=['P'], color_attenuation=[1.0], key_phase=['P'], 
             output_location='../wavefront_movie_outputs/', gif_name_str='', title='Inside the Deep Earth', load_image='',
             LL_L1_text='', LL_L2_text='', LR_L1_text='', LR_L2_text='',
+            LL_L1_time=1.0, LL_L2_time=1.0, LR_L1_time=1.0, LR_L2_time=1.0,
             mov_pause_times=[], mov_fps=30, mov_dpi=150):
 
     global save_paths
@@ -117,6 +126,7 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
                         phases_to_plot=phases_to_plot, color_attenuation=color_attenuation, key_phase=key_phase, 
                         output_location=output_location, gif_name_str=gif_name_str, title=title, load_image=load_image,
                         LL_L1_text=LL_L1_text, LL_L2_text=LL_L2_text, LR_L1_text=LR_L1_text, LR_L2_text=LR_L2_text,
+                        LL_L1_time=LL_L1_time, LL_L2_time=LL_L2_time, LR_L1_time=LR_L1_time, LR_L2_time=LR_L2_time,
                         mov_fps=mov_fps,mov_dpi=mov_dpi)
 
     ############## Plot which phases: ######################
@@ -172,21 +182,34 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
     #################### Calculate the frames vector ####################################
     # This is a way to dictate when the movie pauses.
     
-    mov_pause_length = 5  # Define number of seconds pause for each mov_pause_time
+    mov_pause_length = 10 # * mov_fps  # Define number of seconds pause for each mov_pause_time
     # Make the frames vector as integer intervals from zero to propagation_time -1
-    frames=np.arange(0, propagation_time , 1)
+    # This must be a generator function that is passed to funcanimation below
+    def gen_function():
+        frames=np.arange(0, propagation_time , 1)
+        if len(mov_pause_times) > 0:
+            # Make frames vector by looping through and adding pauses (repeated frames)
+            for i in mov_pause_times:
+                # print(i)
+                for j in range(1, mov_pause_length, 1):
+                    # print(j)
+                    first_ind=int(np.where(frames == i)[0][0])
+                    # print(first_ind)
+                    frames=np.insert(frames,first_ind,i)
     
-    if len(mov_pause_times) > 0:
-        # Make frames vector by looping through and adding pauses (repeated frames)
-        for i in range(len(mov_pause_times)):
-            frames_start=list(frames[0:mov_pause_times[i]])
-            frames_pause=[mov_pause_times[i] for j in range(mov_pause_length)]
-            frames_end=list(frames[mov_pause_times[i]+1:])
-            frames=frames_start+frames_pause+frames_end
+        frames=frames.flatten()
         if frames[0] != 0 or frames[-1] != propagation_time-1:
             print('Something wrong with calculation of frames vector')
             print('exiting\n')
             sys.exit()
+        print('length of frames array is: '+str(len(frames)))
+        # for k in range(len(frames)):
+            # yield int(frames[k])
+        k=0
+        while k < len(frames):
+            print('k = '+str(k))
+            yield int(frames[k])
+            k += 1
     
     #-------------------# NOT READY FOR USE #-------------------#
 
@@ -417,14 +440,14 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
     frame_number    = propagation_time
     frame_rate      = mov_fps #30 fps
     gif_dpi         = mov_dpi # 150 Dots per inch of final gif. DOESNT seem to work!
-    count           = 0 # counter to track how long a text box should appear for
+    # count           = 0 # counter to track how long a text box should appear for
     shake_ampl      = 20 # Ampltiude of shaking in kilometers radius.
 
     def animate(t, lines_left, lines_right):
         '''
             Function updates lines with time
         '''
-        global count
+        # global count
 
         for l,line in enumerate(lines_right):
             dists_collected=save_paths[l,0]
@@ -526,19 +549,19 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
         # This part plots the time dependent appearance of labels and the lower image
         # Layer 1 text - left label
         if len(LL_L1_text) > 0: 
-            if t > 0.5*F_A_time:
+            if t > LL_L1_time*F_A_time:
                 axll.text(0.5, 0.5, LL_L1_text, ha="center", va="center",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
         # Layer 2 text - left label
         if len(LL_L2_text) > 0: 
-            if t > 0.75*F_A_time:
+            if t > LL_L2_time*F_A_time:
                 axll.text(0.5, 0.0, LL_L2_text, ha="center", va="center",fontsize=12, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
         # Layer 1 text - right label
         if len(LR_L1_text) > 0: 
-            if t > 1.25*F_A_time:
+            if t > LR_L1_time*F_A_time:
                 axlr.text(0.5, 0.5, LR_L1_text, ha="center", va="center",fontsize=14, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0)) # Add some labels if you wish
         # Layer 2 text - right label
         if len(LR_L2_text) > 0: 
-            if t > 1.25*F_A_time:
+            if t > LR_L2_time*F_A_time:
                 axlr.text(0.5, 0.0, LR_L2_text, ha="center", va="center",fontsize=12, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0)) # Add some labels if you wish
 
         # Plot descriptive image (di) between the labels.
@@ -555,13 +578,14 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
                               # The function that does the updating of the Figure
                               animate,
                               # Vector containing frame numbers
-                              # frames=frames,
-                              # # Frame information (here just frame number)
-                              frame_number,
+                              # frames,
+                              # Frame information - generator function
+                              frames=gen_function(),
                               # Extra arguments to the animate function
                               fargs=[lines_left, lines_right],
                               # Frame-time in ms; i.e. for a given frame-rate x, 1000/x
-                              interval=1000/frame_rate
+                              interval=1000/frame_rate,
+                              repeat=False,
                               )
 
     # to save as GIF :

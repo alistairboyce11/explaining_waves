@@ -82,7 +82,7 @@ ewm.mk_mov(epi_dist=10, theta_earthquake=0, depth_earthquake=0, propagation_time
             output_location='../wavefront_movie_outputs/', gif_name_str='Test_pause_func', title='Upper Mantle', load_image='Al.png',
             LL_L1_text='Hi', LL_L2_text='There', LR_L1_text='Welcome', LR_L2_text='Back',
             LL_L1_time=0.5, LL_L2_time=0.75, LR_L1_time=1.25, LR_L2_time=1.5,
-            mov_pause_times=[], mov_fps=30, mov_dpi=150)
+            mov_pause_times=[20, 40, 60], mov_fps=30, mov_dpi=150)
 
 
 

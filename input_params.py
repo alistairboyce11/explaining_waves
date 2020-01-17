@@ -41,7 +41,15 @@ This script contains the function that tests input parameters to explaining wave
     LR_L1_text='Label for seismogram L1'           # Layer 1 text for RHS seismogram plot
 
     LR_L2_text='Label for seismogram L2'           # Layer 2 text for RHS seismogram plot
-    
+
+    LL_L1_time = 1                                  # Layer 1 text time for LHS wavefront plot as a function of First arrival time
+
+    LL_L2_time = 1                                  # Layer 2 text time for LHS wavefront plot as a function of First arrival time
+
+    LR_L1_time = 1                                  # Layer 1 text time for RHS seismogram plot as a function of First arrival time
+
+    LR_L2_time = 1                                  # Layer 2 text time for RHS seismogram plot as a function of First arrival time
+
     mov_pause_times=mov_pause_times             # Times at which to pause movie for 5 seconds
 
     mov_fps=mov_fps                                 # frames per second for the gif
@@ -61,6 +69,7 @@ def test_input_params(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propa
             extra_phases=None, phases_to_plot=['P'], color_attenuation=[1.0], key_phase='P', 
             output_location = '../wavefront_movie_outputs/', gif_name_str='',  title='title', load_image='Lehmann.png',
             LL_L1_text='', LL_L2_text='', LR_L1_text='', LR_L2_text='',
+            LL_L1_time=1.0, LL_L2_time=1.0, LR_L1_time=1.0, LR_L2_time=1.0,
             mov_pause_times=[], mov_fps=30,mov_dpi=150):
 
 
@@ -150,16 +159,27 @@ def test_input_params(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propa
         if not isinstance(LL_L2_text, str):
             print('Bad specification of LL_L2_text - must be string')
             sys.exit()
-
     if len(LR_L1_text) > 0:
         if not isinstance(LR_L1_text, str):
             print('Bad specification of LR_L1_text - must be string')
             sys.exit()
-    
     if len(LR_L2_text) > 0:
         if not isinstance(LR_L2_text, str):
             print('Bad specification of LR_L2_text - must be string')
             sys.exit()
+
+    if not isinstance(LL_L1_time, float):
+        print('Bad specification of LL_L1_time - must be float')
+        sys.exit()
+    if not isinstance(LL_L2_time, float):
+        print('Bad specification of LL_L2_time - must be float')
+        sys.exit()
+    if not isinstance(LR_L1_time, float):
+        print('Bad specification of LR_L1_time - must be float')
+        sys.exit()
+    if not isinstance(LR_L2_time, float):
+        print('Bad specification of LR_L2_time - must be float')
+        sys.exit()
 
     if len(mov_pause_times) > 0:
         if not isinstance(mov_pause_times, list):

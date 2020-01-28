@@ -22,9 +22,7 @@
     overwrite_phase_defaults=overwrite_phase_defaults # Overwrite the default phases in the created dictionary = True/False
     
     phases_to_plot=phases_to_plot                     # List of phases wavefronts to plot = e.g., ['P', 'PcP']
-    
-    color_attenuation=color_attenuation               # List of attentuation factors for phases = e.g., [1.0, 0.4]
-    
+        
     key_phase=key_phase                               # Key phase to plot raypath = e.g., ['P']
     
     output_location=output_location                 # String to locate waveform outputs
@@ -51,7 +49,7 @@
 
     LR_L2_time = 1                                  # Layer 2 text time for RHS seismogram plot as a function of First arrival time
 
-    mov_pause_times=mov_pause_times             # Times at which to pause movie for 5 seconds
+    mov_pause_times=mov_pause_times             # Times at which to pause movie for 3 seconds
     
     mov_fps=mov_fps                                 # frames per second for the gif
     
@@ -105,12 +103,15 @@ import gen_seis as gs
 # Function used to setup ploting area.
 import setup_plot_area as spa
 
+# Function used to get colors and alphas for rays/wavefronts
+import ray_colors_atten as rca
+
 # velocity model as a function of depth.
 model = TauPyModel(model='ak135')
 
     # Funciton called to make the explaing waves movies.
 def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time=600, seis_channel='BXZ', filter_params=[],
-            extra_phases=None, overwrite_phase_defaults=False, phases_to_plot=['P'], color_attenuation=[1.0], key_phase=['P'], 
+            extra_phases=None, overwrite_phase_defaults=False, phases_to_plot=['P'], key_phase=['P'], 
             output_location='../wavefront_movie_outputs/', gif_name_str='', title='Inside the Deep Earth', load_image='',
             LL_L1_text='', LL_L2_text='', LR_L1_text='', LR_L2_text='',
             LL_L1_time=1.0, LL_L2_time=1.0, LR_L1_time=1.0, LR_L2_time=1.0,
@@ -122,12 +123,11 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
 
     Filename_GIF= ip.test_input_params(epi_dist=epi_dist, theta_earthquake=theta_earthquake, depth_earthquake=depth_earthquake, 
                         propagation_time=propagation_time, seis_channel=seis_channel, 
-                        extra_phases=extra_phases, 
-                        phases_to_plot=phases_to_plot, color_attenuation=color_attenuation, key_phase=key_phase, 
+                        extra_phases=extra_phases, phases_to_plot=phases_to_plot, key_phase=key_phase, 
                         output_location=output_location, gif_name_str=gif_name_str, title=title, load_image=load_image,
                         LL_L1_text=LL_L1_text, LL_L2_text=LL_L2_text, LR_L1_text=LR_L1_text, LR_L2_text=LR_L2_text,
                         LL_L1_time=LL_L1_time, LL_L2_time=LL_L2_time, LR_L1_time=LR_L1_time, LR_L2_time=LR_L2_time,
-                        mov_fps=mov_fps,mov_dpi=mov_dpi)
+                        mov_pause_times=mov_pause_times, mov_fps=mov_fps,mov_dpi=mov_dpi)
 
     ############## Plot which phases: ######################
 
@@ -182,14 +182,16 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
     #################### Calculate the frames vector ####################################
     # This is a way to dictate when the movie pauses.
     
-    mov_pause_length = 10 # * mov_fps  # Define number of seconds pause for each mov_pause_time
+    mov_pause_length = 30 # * mov_fps  # Define number of seconds pause for each mov_pause_time
     # Make the frames vector as integer intervals from zero to propagation_time -1
     # This must be a generator function that is passed to funcanimation below
     def gen_function():
         frames=np.arange(0, propagation_time , 1)
         if len(mov_pause_times) > 0:
             # Make frames vector by looping through and adding pauses (repeated frames)
-            for i in mov_pause_times:
+            pause_vector=np.floor((np.array(mov_pause_times)*F_A_time))
+            pause_vector=[int(i) for i in pause_vector]
+            for i in pause_vector:
                 # print(i)
                 for j in range(1, mov_pause_length, 1):
                     # print(j)
@@ -202,33 +204,10 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
             print('Something wrong with calculation of frames vector')
             print('exiting\n')
             sys.exit()
-        print('length of frames array is: '+str(len(frames)))
-        # for k in range(len(frames)):
-            # yield int(frames[k])
-        k=0
-        while k < len(frames):
-            print('k = '+str(k))
+        # print('length of frames array is: '+str(len(frames)))
+        for k in range(len(frames)):
             yield int(frames[k])
-            k += 1
     
-    #-------------------# NOT READY FOR USE #-------------------#
-
-    # Need to work on amplitude attentuation factor......
-
-    ##### +++++++++++++++++++++++++++++++++++++++++ #################
-    #-------------------# NOT READY FOR USE #-------------------#
-
-
-    # # min and max distances for the different phases to consider
-    # # these can be chosen broadly (could be set 0-180 for all), it just slows down the code a bit.
-    # rays_dist_min=[0, 100,100, 130, 0, 60, 0]
-    # rays_dist_max=[110, 150,  181, 181, 160,180, 180 ]
-
-    # darkness of grey (lower is lighter here)
-    # this should be adapted, colors should change at reflection points
-    # color_attenuation=[1.0, 0.5, 0.8, 0.8, 0.3, 0.8, 1.0]
-
-
     ################ Wavefront movie #######################
     
     # regular time array in s, 1 s resolution
@@ -239,7 +218,9 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
     for p, phase  in enumerate(phases_to_plot):
         dists_collected=[]
         depths_collected=[]
-        for r, dist in enumerate(np.arange(rays_dist_min[p], rays_dist_max[p] + 1 , 1)): # +1 required as arange excludes last value.
+        amps_collected=[]
+        cols_collected=[]
+        for dist in np.arange(rays_dist_min[p], rays_dist_max[p] + 1 , 1): # +1 required as arange excludes last value.
             # get raypaths
             rays = model.get_ray_paths(depth_earthquake, dist, phase_list=[phase])
             # Loop through rays found, some phases have multiple paths
@@ -247,11 +228,16 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
                 # Interpolate to regulard time array
                 dists = np.interp(time, ray.path['time'], ray.path['dist'], left = np.nan, right = np.nan)
                 depths = np.interp(time, ray.path['time'], ray.path['depth'], left = np.nan, right = np.nan)
+                amps = rca.get_ray_atten(phase,dist,time,dists,depths)
+                cols = rca.get_ray_color(phase,dist,time,dists,depths)
                 # save paths
                 dists_collected.append(dists)
                 depths_collected.append(depths)
-        save_paths.append([np.array(dists_collected),np.array(depths_collected)])
+                amps_collected.append(amps)
+                cols_collected.append(cols)
+        save_paths.append([np.array(dists_collected),np.array(depths_collected),np.array(amps_collected),np.array(cols_collected)])
     save_paths=np.array(save_paths)
+    # print(np.shape(save_paths))
 
     # Repeat the above but just calculate for the key phase and the epicentral distance required.
     key_path=[]
@@ -281,23 +267,31 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
     # set polar subplot as current axes
     plt.sca(ax2)
 
-    # plot paths for t=0 (these are all at the earthquake
+    # plot paths for t=0 (these are all at the earthquake)
     t=0
     for p in range(len(save_paths)):
         dists_collected=save_paths[p,0]
         depths_collected=save_paths[p,1]
+        amps_collected=save_paths[p,2]
+        cols_collected=save_paths[p,3]
         front_dist= dists_collected[:,t] # Cut at single time across all paths
         front_depth = depths_collected[:, t] # Cut at single time across all paths
-        # set colour
-        col = color_attenuation[p] # ((1-(1.-float(0)/propagation_time )*color_attenuation[p])+0.5)/1.5
-        cols = [col, col,col]
-        # Set alphas - intrinsic amplitude decay : can be scaled:
-        alpha_atten=1*np.exp((-1*t)/(2*650))
+        front_amps = amps_collected[:, t] # Cut at single time across all paths
+        front_cols = cols_collected[:, t] # Cut at single time across all paths
+        # set colour and alphas.
+        # Make same length as interpolated values passed to line variable.
+        # Not sure why this isnt 100 but the work aroudn below works fine :)
+        rgba_colors = np.zeros((len(intp(front_cols, 100)),4))
+        rgba_colors[:,0] = intp(front_cols, 100)
+        rgba_colors[:,1] = intp(front_cols, 100)
+        rgba_colors[:,2] = intp(front_cols, 100)
+        rgba_colors[:,3] = intp(front_amps, 100)
+        
         # plot line towards the right side
-        line, = ax2.plot(intp(front_dist, 100),radius - intp(front_depth, 100),color=cols, alpha=alpha_atten)
+        line, = ax2.plot(intp(front_dist, 100),radius - intp(front_depth, 100),color=rgba_colors[0])
         lines_right.append(line)
         # mirror line towards the left
-        line, = ax2.plot(intp(-1.*front_dist, 100),radius - intp(front_depth, 100),color=cols, alpha=alpha_atten)
+        line, = ax2.plot(intp(-1.*front_dist, 100),radius - intp(front_depth, 100),color=rgba_colors[0])
         lines_left.append(line)
 
     ############################ add discontinuities - not used ##############################
@@ -452,25 +446,39 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
         for l,line in enumerate(lines_right):
             dists_collected=save_paths[l,0]
             depths_collected=save_paths[l,1]
+            amps_collected=save_paths[l,2]
+            cols_collected=save_paths[l,3]
             front_dist= dists_collected[:,t]
             front_depth = depths_collected[:, t]
+            front_amps = amps_collected[:, t] # Cut at single time across all paths
+            front_cols = cols_collected[:, t] # Cut at single time across all paths
             # update line to the right
             line.set_xdata(intp(front_dist,100))
             line.set_ydata(radius - intp(front_depth,100))
             # mirror update for lines to left
             lines_left[l].set_xdata(intp(-1.*front_dist,100))
             lines_left[l].set_ydata(radius - intp(front_depth,100))
+            
+            # set colour and alphas.
+            # Make same length as interpolated values passed to line variable.
+            # Not sure why this isnt 100 but the work aroudn below works fine :)
+            rgba_colors = np.zeros((len(intp(front_cols, 100)),4))
+            rgba_colors[:,0] = intp(front_cols, 100)
+            rgba_colors[:,1] = intp(front_cols, 100)
+            rgba_colors[:,2] = intp(front_cols, 100)
+            rgba_colors[:,3] = intp(front_amps, 100)
+
+            # # Set alphas - intrinsic amplitude decay : can be scaled:
+            # # alpha_atten=1
+            # # line.set_alpha(alpha_atten)
+            # # lines_left[l].set_alpha(alpha_atten)
+            #
             # update colour
-            col = color_attenuation[l] # ((1-(1.-float(t)/propagation_time )*color_attenuation[l])+0.5)/1.5
-            cols = [col, col,col]
-            line.set_color(cols)
-            lines_left[l].set_color(cols)
-            # Set alphas - intrinsic amplitude decay : can be scaled:
-            alpha_atten=1*np.exp((-1*t)/(2*650))
-            line.set_alpha(alpha_atten)
-            lines_left[l].set_alpha(alpha_atten)
-            
-            
+            # col = 1 #
+            # cols = [col, col,col]
+            line.set_color(rgba_colors[0])
+            lines_left[l].set_color(rgba_colors[0])
+
         print('Time step calculated: '+str(t))
 
         # For each step we want to check if t is odd or even so that we can shake the eartquake and labels
@@ -549,24 +557,24 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
         # This part plots the time dependent appearance of labels and the lower image
         # Layer 1 text - left label
         if len(LL_L1_text) > 0: 
-            if t > LL_L1_time*F_A_time:
+            if t >= LL_L1_time*np.floor(F_A_time)-2:
                 axll.text(0.5, 0.5, LL_L1_text, ha="center", va="center",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
         # Layer 2 text - left label
         if len(LL_L2_text) > 0: 
-            if t > LL_L2_time*F_A_time:
+            if t >= LL_L2_time*np.floor(F_A_time)-2:
                 axll.text(0.5, 0.0, LL_L2_text, ha="center", va="center",fontsize=12, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
         # Layer 1 text - right label
         if len(LR_L1_text) > 0: 
-            if t > LR_L1_time*F_A_time:
+            if t >= LR_L1_time*np.floor(F_A_time)-2:
                 axlr.text(0.5, 0.5, LR_L1_text, ha="center", va="center",fontsize=14, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0)) # Add some labels if you wish
         # Layer 2 text - right label
         if len(LR_L2_text) > 0: 
-            if t > LR_L2_time*F_A_time:
+            if t >= LR_L2_time*np.floor(F_A_time)-2:
                 axlr.text(0.5, 0.0, LR_L2_text, ha="center", va="center",fontsize=12, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0)) # Add some labels if you wish
 
         # Plot descriptive image (di) between the labels.
         if len(di_figure) > 0: 
-            if t >= 1*F_A_time:
+            if t >= LR_L1_time*np.floor(F_A_time)-2:
                 axdi.imshow(di_figure, alpha=1)
 
         return(line,eq_symbol,seismom_symbol,key_ray_path,seis,drawing_tick,triangle_tick)

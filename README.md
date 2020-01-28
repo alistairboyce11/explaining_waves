@@ -11,7 +11,6 @@ filter_params=filter_params                     # filter parameters for syntheti
 extra_phases=extra_phases                       # Extra phases to add to the phase dictionary = e.g., ['SKS', 'ScS', 'SKiKS', 'SS', 'SKKS']
 overwrite_phase_defaults=overwrite_phase_defaults # Overwrite the default phases in the created dictionary = True/False
 phases_to_plot=phases_to_plot                     # List of phases wavefronts to plot = e.g., ['P', 'PcP']
-color_attenuation=color_attenuation               # List of attentuation factors for phases = e.g., [1.0, 0.4]
 key_phase=key_phase                               # Key phase to plot raypath = e.g., ['P']
 output_location=output_location                 # String to locate waveform outputs
 gif_name_str=gif_name_str                        # String to name movie = e.g., 'CMB1'

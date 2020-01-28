@@ -21,9 +21,7 @@ This script contains the function that tests input parameters to explaining wave
     overwrite_phase_defaults=overwrite_phase_defaults # Overwrite the default phases in the created dictionary = True/False
     
     phases_to_plot=phases_to_plot                     # List of phases wavefronts to plot = e.g., ['P', 'PcP']
-    
-    color_attenuation=color_attenuation               # List of attentuation factors for phases = e.g., [1.0, 0.4]
-    
+        
     key_phase=key_phase                               # Key phase to plot raypath = e.g., ['P']
     
     output_location=output_location                 # String to locate waveform outputs
@@ -66,7 +64,7 @@ from pathlib import Path
 home = str(Path.home())
 
 def test_input_params(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time=600, seis_channel='BXZ', filter_params=[],
-            extra_phases=None, phases_to_plot=['P'], color_attenuation=[1.0], key_phase='P', 
+            extra_phases=None, phases_to_plot=['P'], key_phase='P', 
             output_location = '../wavefront_movie_outputs/', gif_name_str='',  title='title', load_image='Lehmann.png',
             LL_L1_text='', LL_L2_text='', LR_L1_text='', LR_L2_text='',
             LL_L1_time=1.0, LL_L2_time=1.0, LR_L1_time=1.0, LR_L2_time=1.0,
@@ -112,10 +110,6 @@ def test_input_params(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propa
 
     if not isinstance(phases_to_plot, list):
         print('Bad specification of phases_to_plot')
-        sys.exit()
-
-    if not isinstance(color_attenuation, list) or len(color_attenuation) != len(phases_to_plot):
-        print('Bad specification of color_attenuation')
         sys.exit()
 
     if not isinstance(key_phase, list)  or len(key_phase) != 1:

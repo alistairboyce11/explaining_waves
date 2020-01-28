@@ -47,10 +47,14 @@ depth_earthquake = 0
 radius = 6371                                       # radius of Earth in km
 
 title = 'Movie title'
-LL_L1_text='Label for wavefronts L1'
-LL_L2_text='Label for wavefronts L2'
-LR_L1_text='Label for seismogram L1'
-LR_L2_text='Label for seismogram L2'
+# LL_L1_text='Label for wavefronts L1'
+# LL_L2_text='Label for wavefronts L2'
+# LR_L1_text='Label for seismogram L1'
+# LR_L2_text='Label for seismogram L2'
+LL_L1_text='Fast traveling P-waves travel away from the Earthquake'
+LL_L2_text='Waves are reflected off the surface and core'
+LR_L1_text='The direct P-wave arrives first'
+LR_L2_text='Al times these arrivals to find fast and\n slow areas in the Earth\'s mantle'
 load_image='Lehmann.png'
 
 # ##################### SET UP THE PLOTTING AREA HERE #######################

@@ -23,9 +23,7 @@
     overwrite_phase_defaults=overwrite_phase_defaults # Overwrite the default phases in the created dictionary = True/False
     
     phases_to_plot=phases_to_plot                     # List of phases wavefronts to plot = e.g., ['P', 'PcP']
-    
-    color_attenuation=color_attenuation               # List of attentuation factors for phases = e.g., [1.0, 0.4]
-    
+        
     key_phase=key_phase                               # Key phase to plot raypath = e.g., ['P']
     
     output_location=output_location                 # String to locate waveform outputs
@@ -75,7 +73,6 @@ filter_params=[0.02, 0.5] # []
 extra_phases=None
 overwrite_phase_defaults=False,
 phases_to_plot=['P']
-color_attenuation=[1.0]
 key_phase=['P']
 output_location = '../wavefront_movie_outputs/'
 gif_name_str=''
@@ -95,7 +92,7 @@ mov_dpi=150
 Filename_GIF= ip.test_input_params(epi_dist=epi_dist, theta_earthquake=theta_earthquake, depth_earthquake=depth_earthquake, 
                     propagation_time=propagation_time, seis_channel=seis_channel, filter_params=filter_params,
                     extra_phases=extra_phases, 
-                    phases_to_plot=phases_to_plot, color_attenuation=color_attenuation, key_phase=key_phase, 
+                    phases_to_plot=phases_to_plot, key_phase=key_phase, 
                     output_location=output_location, gif_name_str=gif_name_str, title=title, load_image=load_image, 
                     LL_L1_text=LL_L1_text, LL_L2_text=LL_L2_text, LR_L1_text=LR_L1_text, LR_L2_text=LR_L2_text,
                     mov_pause_times=mov_pause_times, mov_fps=mov_fps, mov_dpi=mov_dpi)

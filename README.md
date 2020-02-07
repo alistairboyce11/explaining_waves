@@ -47,6 +47,11 @@ Obspy Taup toolkit used to make dictionary that can be queried for phase arrival
 #gen_seis.py
 Used to generate synthetic seismogram.
 
+#ray_colors_atten.py
+Functions used to obtain vp,vs,rho from ak135, define the ray color for S and P waves and define wavefront alphas using R and T coeffs and intrinsic attenuation.
+#zoeppritz_coeff.py
+Modification of Chris Chapman's code to calculate R and T coefficients using Zoeppritz equations.
+
 #./Testing_Scripts
 This has the scripts used to test the functions in scripts above.
 
@@ -57,3 +62,5 @@ home_screen_expl_waves.py
 test_fig_layout.py
 test_import_png.py
 test_phase_finder.py
+test_ray_col_att.py
+test_zoeppritz.py

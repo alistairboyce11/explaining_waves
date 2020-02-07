@@ -2,7 +2,7 @@
 Script to calculate colours/amplitudes for each ray path over given propagation time.
 Colour to vary between P and S 
 Intrinsic attenuation to vary form P-to-S - different Q factor.
-Reflection refraction factors to be same for P and S.
+Reflection transmission factors to be same for P and S.
 
 '''
 ### Importing various python libraries
@@ -73,7 +73,7 @@ def get_ray_color(phase,dist,time,dists,depths,ray_param):
     if 'P' in str(phase):
         val=1
     if 'S' in str(phase):
-        val=0.7
+        val=0.9
     # Set cols - P-different to S
     cols=cols*val
         
@@ -81,7 +81,7 @@ def get_ray_color(phase,dist,time,dists,depths,ray_param):
 
 def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
     # Want to determine the amplitude attentuation 
-    # Start with P and S intrinsic attenuation and then multiply by reflection refraction part.
+    # Start with P and S intrinsic attenuation and then multiply by reflection - transmission part.
     
     amps=np.ones(len(time))
 
@@ -92,6 +92,9 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
         Q=280; W=0.1
     # Set alphas - intrinsic amplitude decay:
     i_atten=amps*np.exp((-W*time)/(2*Q))
+
+    #####################################################################
+    # The next section defines the reflection and transmission coefficents to set wavefront alphas.
 
     disconts = [0, 2891.5, 5153.5]
 
@@ -285,7 +288,7 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
                 layer2= [get_vp_b(d1), get_vs_b(d1), get_rho_b(d1)]
                 Rmatrix_RT1 = zpc.zoeppritz(p,layer1,layer2)
 
-                T_RT1=np.abs(Rmatrix_RT1[5,2]) # ICB downgoing refraction - same for all phases.
+                T_RT1=np.abs(Rmatrix_RT1[5,2]) # ICB downgoing transmission - same for all phases.
                 RT_point_amps[ind_RT1:,1]=T_RT1
             
                 # Check upgoing phase reaches ICB
@@ -298,7 +301,7 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
                     layer2= [get_vp_b(d2), get_vs_b(d2), get_rho_b(d2)]
                     Rmatrix_RT2 = zpc.zoeppritz(p,layer1,layer2)
                     
-                    T_RT2=np.abs(Rmatrix_RT2[2,5]) # ICB upgoing refraction - same for all phases.
+                    T_RT2=np.abs(Rmatrix_RT2[2,5]) # ICB upgoing transmission - same for all phases.
                     RT_point_amps[ind_RT2:,2]=T_RT2
             
                     # Check upgoing phase reaches CMB
@@ -408,7 +411,7 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
 
     # Phase types: direct, topside OC-ref, underside SF-ref, OC-P, underside OC-ref, topside IC-ref, IC-P, IC-S
     # Reflection types: topside OC-refl, underside SF-refl, underside OC-refl, topside IC-refl
-    # Refraction types: downgoing M-OC, downgoing OC-IC, upgoing IC-OC, upgoing OC-M.
+    # transmission types: downgoing M-OC, downgoing OC-IC, upgoing IC-OC, upgoing OC-M.
     #
     # Legs:
     #

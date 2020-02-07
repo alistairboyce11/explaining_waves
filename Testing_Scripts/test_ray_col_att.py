@@ -19,10 +19,11 @@ Test_1 = False # Test get ray color
 Test_2 = False # Test get ray attenuation
 
 # Set values
-propagation_time=600
-phases_to_plot=['P','PcP', 'S','ScS']
+propagation_time=1400
+phases_to_plot=['P', 'PP', 'PcP', 'PKP', 'PKiKP', 'PKIKP', 'PKKP']
 depth_earthquake=0
 
+seis_channel='BHZ'
 
 rays_dist_min=[]
 rays_dist_max=[]
@@ -42,7 +43,7 @@ print('At max dists: '+str(rays_dist_max))
 
 # regular time array in s, 1 s resolution
 time = np.arange(0., propagation_time)
-
+radius=6371
 
 # calculate through and save ray paths in interpolated time domain
 save_paths=[]
@@ -59,8 +60,9 @@ for p, phase  in enumerate(phases_to_plot):
             # Interpolate to regulard time array
             dists = np.interp(time, ray.path['time'], ray.path['dist'], left = np.nan, right = np.nan)
             depths = np.interp(time, ray.path['time'], ray.path['depth'], left = np.nan, right = np.nan)
-            amps = rca.get_ray_atten(phase,dist,time,dists,depths)
-            cols = rca.get_ray_color(phase,dist,time,dists,depths)
+            ray_param=ray.ray_param/(radius*1000) # convert to s/km from s/radian.
+            amps = rca.get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel)
+            cols = rca.get_ray_color(phase,dist,time,dists,depths,ray_param)
             # save paths
             dists_collected.append(dists)
             depths_collected.append(depths)
@@ -68,7 +70,7 @@ for p, phase  in enumerate(phases_to_plot):
             cols_collected.append(cols)
     save_paths.append([np.array(dists_collected),np.array(depths_collected),np.array(amps_collected),np.array(cols_collected)])
 save_paths=np.array(save_paths)
-print(np.shape(save_paths))
+# print(np.shape(save_paths))
 
 # if Test_1:
 #     rca.get_ray_color()

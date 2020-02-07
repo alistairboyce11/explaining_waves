@@ -226,10 +226,11 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
             # Loop through rays found, some phases have multiple paths
             for ray in rays:
                 # Interpolate to regulard time array
+                ray_param=ray.ray_param/(radius*1000) # convert to s/km from s/radian.
                 dists = np.interp(time, ray.path['time'], ray.path['dist'], left = np.nan, right = np.nan)
                 depths = np.interp(time, ray.path['time'], ray.path['depth'], left = np.nan, right = np.nan)
-                amps = rca.get_ray_atten(phase,dist,time,dists,depths)
-                cols = rca.get_ray_color(phase,dist,time,dists,depths)
+                amps = rca.get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel)
+                cols = rca.get_ray_color(phase,dist,time,dists,depths,ray_param)
                 # save paths
                 dists_collected.append(dists)
                 depths_collected.append(depths)

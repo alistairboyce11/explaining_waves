@@ -27,7 +27,7 @@
     
     output_location=output_location                 # String to locate waveform outputs
     
-    gif_name_str=gif_name_str                        # String to name movie = e.g., 'CMB1'
+    mov_name_str=mov_name_str                        # String to name movie = e.g., 'CMB1'
 
     title=title                                     # Movie title = e.g., 'Inside the Deep Earth'
 
@@ -51,9 +51,9 @@
 
     mov_pause_times=mov_pause_times             # Times at which to pause movie for 3 seconds
     
-    mov_fps=mov_fps                                 # frames per second for the gif
+    mov_fps=mov_fps                                 # frames per second for the mov
     
-    mov_dpi=mov_dpi                                 # Dots per inch for gif. DOESNT seem to work!
+    mov_dpi=mov_dpi                                 # Dots per inch for mov. DOESNT seem to work!
 
 '''
 
@@ -71,7 +71,9 @@ from obspy.taup import plot_ray_paths
 
 import matplotlib
 from matplotlib.animation import FuncAnimation
-from matplotlib.animation import PillowWriter
+
+
+# from matplotlib.animation import PillowWriter
 # More about the obspy routines we are using can be found here:
 # https://docs.obspy.org/packages/obspy.taup.html
 
@@ -112,7 +114,7 @@ model = TauPyModel(model='ak135')
     # Funciton called to make the explaing waves movies.
 def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time=600, seis_channel='BXZ', filter_params=[],
             extra_phases=None, overwrite_phase_defaults=False, phases_to_plot=['P'], key_phase=['P'], 
-            output_location='../wavefront_movie_outputs/', gif_name_str='', title='Inside the Deep Earth', load_image='',
+            output_location='../wavefront_movie_outputs/', mov_name_str='', title='Inside the Deep Earth', load_image='',
             LL_L1_text='', LL_L2_text='', LR_L1_text='', LR_L2_text='',
             LL_L1_time=1.0, LL_L2_time=1.0, LR_L1_time=1.0, LR_L2_time=1.0,
             mov_pause_times=[], mov_fps=30, mov_dpi=150):
@@ -121,10 +123,10 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
 
     ############## Test these input params are suitable ######################
 
-    Filename_GIF= ip.test_input_params(epi_dist=epi_dist, theta_earthquake=theta_earthquake, depth_earthquake=depth_earthquake, 
+    Filename_MOV= ip.test_input_params(epi_dist=epi_dist, theta_earthquake=theta_earthquake, depth_earthquake=depth_earthquake, 
                         propagation_time=propagation_time, seis_channel=seis_channel, 
                         extra_phases=extra_phases, phases_to_plot=phases_to_plot, key_phase=key_phase, 
-                        output_location=output_location, gif_name_str=gif_name_str, title=title, load_image=load_image,
+                        output_location=output_location, mov_name_str=mov_name_str, title=title, load_image=load_image,
                         LL_L1_text=LL_L1_text, LL_L2_text=LL_L2_text, LR_L1_text=LR_L1_text, LR_L2_text=LR_L2_text,
                         LL_L1_time=LL_L1_time, LL_L2_time=LL_L2_time, LR_L1_time=LR_L1_time, LR_L2_time=LR_L2_time,
                         mov_pause_times=mov_pause_times, mov_fps=mov_fps,mov_dpi=mov_dpi)
@@ -434,7 +436,7 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
 
     frame_number    = propagation_time
     frame_rate      = mov_fps #30 fps
-    gif_dpi         = mov_dpi # 150 Dots per inch of final gif. DOESNT seem to work!
+    mov_dpi         = mov_dpi # 150 Dots per inch of final mov. DOESNT seem to work!
     # count           = 0 # counter to track how long a text box should appear for
     shake_ampl      = 20 # Ampltiude of shaking in kilometers radius.
 
@@ -593,14 +595,15 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
                               # Extra arguments to the animate function
                               fargs=[lines_left, lines_right],
                               # The number of values from frames to cache:
-                              save_count=propagation_time + (len(mov_pause_times)*(mov_pause_length - 1)) ,
+                              save_count=propagation_time + (len(mov_pause_times)*(mov_pause_length - 1)),
                               # Frame-time in ms; i.e. for a given frame-rate x, 1000/x
                               interval=1000/frame_rate,
                               repeat=False,
                               )
 
-    # to save as GIF :
-    animation.save(Filename_GIF, writer=PillowWriter(fps=frame_rate), dpi=gif_dpi)
+    # to save as MP4 :
+    Writer = matplotlib.animation.writers['ffmpeg']
+    animation.save(Filename_MOV, writer=Writer(fps=frame_rate), dpi=mov_dpi)
 
 
     return()

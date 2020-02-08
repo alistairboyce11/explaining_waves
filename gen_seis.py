@@ -24,7 +24,6 @@ from obspy.taup import plot_ray_paths
 
 import matplotlib
 from matplotlib.animation import FuncAnimation
-from matplotlib.animation import PillowWriter
 # More about the obspy routines we are using can be found here:
 # https://docs.obspy.org/packages/obspy.taup.html
 

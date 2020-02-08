@@ -130,8 +130,8 @@ Filter_Waveform=False                               # Filter waveform with bandp
 
 # Output handling
 Output_Location     =   '../../wavefront_movie_outputs/'
-gif_name_str        =   'ray_path_test_movie_'+str(epi_dist)+'deg'
-Filename_GIF        =   Output_Location + gif_name_str + '.gif'
+mov_name_str        =   'ray_path_test_movie_'+str(epi_dist)+'deg'
+Filename_MOV        =   Output_Location + mov_name_str + '.mp4'
 
 if not os.path.exists(Output_Location):
     os.makedirs(Output_Location)
@@ -377,7 +377,7 @@ ax.set_rmin(0.0)
 
 frame_number    = Propagation_time
 frame_rate      = 25 # fps
-gif_dpi         = 100 # Dots per inch of final gif. DOESNT seem to work!
+mov_dpi         = 100 # Dots per inch of final mov. DOESNT seem to work!
 count           = 0 # counter to track how long a text box should appear for
 shake_ampl      = 20 # Ampltiude of shaking in kilometers radius.
 
@@ -512,6 +512,7 @@ animation = FuncAnimation(
                           interval=1000/frame_rate
                           )
 
-# to save as GIF :
-animation.save(Filename_GIF, writer=PillowWriter(fps=frame_rate), dpi=gif_dpi)
+# to save as MOV :
+Writer = matplotlib.animation.writers['ffmpeg']
+animation.save(Filename_MOV, writer=Writer(fps=frame_rate), dpi=mov_dpi)
 

@@ -28,7 +28,7 @@
     
     output_location=output_location                 # String to locate waveform outputs
     
-    gif_name_str=gif_name_str                        # String to name movie = e.g., 'CMB1'
+    mov_name_str=mov_name_str                        # String to name movie = e.g., 'CMB1'
 
     title=title                                     # Movie title = e.g., 'Inside the Deep Earth'
 
@@ -44,9 +44,9 @@
     
     mov_pause_times=mov_pause_times             # Times at which to pause movie for 5 seconds
 
-    mov_fps=mov_fps                                 # frames per second for the gif
+    mov_fps=mov_fps                                 # frames per second for the mov
     
-    mov_dpi=mov_dpi                                 # Dots per inch for gif. DOESNT seem to work!
+    mov_dpi=mov_dpi                                 # Dots per inch for mov. DOESNT seem to work!
 
 
 '''
@@ -75,7 +75,7 @@ overwrite_phase_defaults=False,
 phases_to_plot=['P']
 key_phase=['P']
 output_location = '../wavefront_movie_outputs/'
-gif_name_str=''
+mov_name_str=''
 title='Inside the Earthsss'
 LL_L1_text='Label for waves L1'
 LL_L2_text='Label for waves L2'
@@ -89,12 +89,12 @@ mov_dpi=150
 
     ############## Test these input params are suitable ######################
 
-Filename_GIF= ip.test_input_params(epi_dist=epi_dist, theta_earthquake=theta_earthquake, depth_earthquake=depth_earthquake, 
+Filename_MOV= ip.test_input_params(epi_dist=epi_dist, theta_earthquake=theta_earthquake, depth_earthquake=depth_earthquake, 
                     propagation_time=propagation_time, seis_channel=seis_channel, filter_params=filter_params,
                     extra_phases=extra_phases, 
                     phases_to_plot=phases_to_plot, key_phase=key_phase, 
-                    output_location=output_location, gif_name_str=gif_name_str, title=title, load_image=load_image, 
+                    output_location=output_location, mov_name_str=mov_name_str, title=title, load_image=load_image, 
                     LL_L1_text=LL_L1_text, LL_L2_text=LL_L2_text, LR_L1_text=LR_L1_text, LR_L2_text=LR_L2_text,
                     mov_pause_times=mov_pause_times, mov_fps=mov_fps, mov_dpi=mov_dpi)
 
-print(Filename_GIF)
+print(Filename_MOV)

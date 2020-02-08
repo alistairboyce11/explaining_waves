@@ -122,9 +122,9 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
             layer2= [get_vp_b(d0), get_vs_b(d0), get_rho_b(d0)]
             Rmatrix_RT0 = zpc.zoeppritz(p,layer1,layer2)
             
-            if seis_channel == 'BHT':
+            if seis_channel == 'BXT':
                 R_RT0=np.abs(Rmatrix_RT0[1,1]) # This will be ScS on transverse
-            elif seis_channel == 'BHR' or seis_channel == 'BHZ':
+            elif seis_channel == 'BXR' or seis_channel == 'BXZ':
                 if phase == 'ScS':
                     R_RT0=np.abs(Rmatrix_RT0[0,0])  # This will be ScS on vertical
                 elif phase == 'PcP':
@@ -145,9 +145,9 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
             layer2= [get_vp_b(d0), get_vs_b(d0), get_rho_b(d0)]
             Rmatrix_RT0 = zpc.zoeppritz(p,layer1,layer2)
 
-            if seis_channel == 'BHT':
+            if seis_channel == 'BXT':
                 R_RT0=np.abs(Rmatrix_RT0[4,4]) # This will be SS on transverse
-            elif seis_channel == 'BHR' or seis_channel == 'BHZ':
+            elif seis_channel == 'BXR' or seis_channel == 'BXZ':
                 if phase == 'SS':
                     R_RT0=np.abs(Rmatrix_RT0[3,3])  # This will be SS on vertical
                 elif phase == 'PP':
@@ -168,9 +168,9 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
             layer2= [get_vp_b(d0), get_vs_b(d0), get_rho_b(d0)]
             Rmatrix_RT0 = zpc.zoeppritz(p,layer1,layer2)
             
-            if seis_channel == 'BHT':
+            if seis_channel == 'BXT':
                 T_RT0=np.abs(Rmatrix_RT0[5,1]) # This will be SKS on transverse
-            elif seis_channel == 'BHR' or seis_channel == 'BHZ':
+            elif seis_channel == 'BXR' or seis_channel == 'BXZ':
                 if phase == 'SKS':
                     T_RT0=np.abs(Rmatrix_RT0[5,0])  # This will be SKS on vertical
                 elif phase == 'PKP':
@@ -190,9 +190,9 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
                 layer2= [get_vp_b(d1), get_vs_b(d1), get_rho_b(d1)]
                 Rmatrix_RT1 = zpc.zoeppritz(p,layer1,layer2)
                 
-                if seis_channel == 'BHT':
+                if seis_channel == 'BXT':
                     T_RT1=np.abs(Rmatrix_RT1[1,5]) # This will be SKS on transverse
-                elif seis_channel == 'BHR' or seis_channel == 'BHZ':
+                elif seis_channel == 'BXR' or seis_channel == 'BXZ':
                     if phase == 'SKS':
                         T_RT1=np.abs(Rmatrix_RT1[0,5])  # This will be SKS on vertical
                     elif phase == 'PKP':
@@ -212,9 +212,9 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
             layer2= [get_vp_b(d0), get_vs_b(d0), get_rho_b(d0)]
             Rmatrix_RT0 = zpc.zoeppritz(p,layer1,layer2)
             
-            if seis_channel == 'BHT':
+            if seis_channel == 'BXT':
                 T_RT0=np.abs(Rmatrix_RT0[5,1]) # This will be SKiKS on transverse
-            elif seis_channel == 'BHR' or seis_channel == 'BHZ':
+            elif seis_channel == 'BXR' or seis_channel == 'BXZ':
                 if phase == 'SKiKS':
                     T_RT0=np.abs(Rmatrix_RT0[5,0])  # This will be SKiKS on vertical
                 elif phase == 'PKiKP':
@@ -246,9 +246,9 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
                     layer2= [get_vp_b(d2), get_vs_b(d2), get_rho_b(d2)]
                     Rmatrix_RT2 = zpc.zoeppritz(p,layer1,layer2)
                     
-                    if seis_channel == 'BHT':
+                    if seis_channel == 'BXT':
                         T_RT2=np.abs(Rmatrix_RT2[1,5]) # This will be SKiKS on transverse
-                    elif seis_channel == 'BHR' or seis_channel == 'BHZ':
+                    elif seis_channel == 'BXR' or seis_channel == 'BXZ':
                         if phase == 'SKiKS':
                             T_RT2=np.abs(Rmatrix_RT2[0,5])  # This will be SKiKS on vertical
                         elif phase == 'PKiKP':
@@ -268,9 +268,9 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
             layer2= [get_vp_b(d0), get_vs_b(d0), get_rho_b(d0)]
             Rmatrix_RT0 = zpc.zoeppritz(p,layer1,layer2)
             
-            if seis_channel == 'BHT':
+            if seis_channel == 'BXT':
                 T_RT0=np.abs(Rmatrix_RT0[5,1]) # This will be SKIKS on transverse
-            elif seis_channel == 'BHR' or seis_channel == 'BHZ':
+            elif seis_channel == 'BXR' or seis_channel == 'BXZ':
                 if phase == 'SKIKS':
                     T_RT0=np.abs(Rmatrix_RT0[5,0])  # This will be SKIKS on vertical
                 elif phase == 'PKIKP':
@@ -315,9 +315,9 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
                         layer2= [get_vp_b(d3), get_vs_b(d3), get_rho_b(d3)]
                         Rmatrix_RT3 = zpc.zoeppritz(p,layer1,layer2)
                         
-                        if seis_channel == 'BHT':
+                        if seis_channel == 'BXT':
                             T_RT3=np.abs(Rmatrix_RT3[1,5]) # This will be SKIKS on transverse
-                        elif seis_channel == 'BHR' or seis_channel == 'BHZ':
+                        elif seis_channel == 'BXR' or seis_channel == 'BXZ':
                             if phase == 'SKIKS':
                                 T_RT3=np.abs(Rmatrix_RT3[0,5])  # This will be SKIKS on vertical
                             elif phase == 'PKIKP':
@@ -337,9 +337,9 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
             layer2= [get_vp_b(d0), get_vs_b(d0), get_rho_b(d0)]
             Rmatrix_RT0 = zpc.zoeppritz(p,layer1,layer2)
             
-            if seis_channel == 'BHT':
+            if seis_channel == 'BXT':
                 T_RT0=np.abs(Rmatrix_RT0[5,1]) # This will be SKKS on transverse
-            elif seis_channel == 'BHR' or seis_channel == 'BHZ':
+            elif seis_channel == 'BXR' or seis_channel == 'BXZ':
                 if phase == 'SKKS':
                     T_RT0=np.abs(Rmatrix_RT0[5,0])  # This will be SKKS on vertical
                 elif phase == 'PKKP':
@@ -382,9 +382,9 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
                     layer2= [get_vp_b(d2), get_vs_b(d2), get_rho_b(d2)]
                     Rmatrix_RT2 = zpc.zoeppritz(p,layer1,layer2)
                     
-                    if seis_channel == 'BHT':
+                    if seis_channel == 'BXT':
                         T_RT2=np.abs(Rmatrix_RT2[1,5]) # This will be SKKS on transverse
-                    elif seis_channel == 'BHR' or seis_channel == 'BHZ':
+                    elif seis_channel == 'BXR' or seis_channel == 'BXZ':
                         if phase == 'SKKS':
                             T_RT2=np.abs(Rmatrix_RT2[0,5])  # This will be SKKS on vertical
                         elif phase == 'PKKP':

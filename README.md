@@ -13,7 +13,7 @@ overwrite_phase_defaults=overwrite_phase_defaults # Overwrite the default phases
 phases_to_plot=phases_to_plot                     # List of phases wavefronts to plot = e.g., ['P', 'PcP']
 key_phase=key_phase                               # Key phase to plot raypath = e.g., ['P']
 output_location=output_location                 # String to locate waveform outputs
-gif_name_str=gif_name_str                        # String to name movie = e.g., 'CMB1'
+mov_name_str=mov_name_str                        # String to name movie = e.g., 'CMB1'
 title=title                                     # Movie title = e.g., 'Inside the Deep Earth'
 load_image=load_image                          # Descriptive image to be plotted at lower middle when text labels show.
 LL_L1_text='Label for waves L1'                # Layer 1 text for LHS wavefront plot
@@ -25,8 +25,8 @@ LL_L2_time = 1                                  # Layer 2 text time for LHS wave
 LR_L1_time = 1                                  # Layer 1 text time for RHS seismogram plot as a function of First arrival time
 LR_L2_time = 1                                  # Layer 2 text time for RHS seismogram plot as a function of First arrival time
 mov_pause_times=mov_pause_times             # Times at which to pause movie for 5 seconds
-mov_fps=mov_fps                                 # Frames per second for the gif
-mov_dpi=mov_dpi                                 # Dots per inch for gif. DOESN'T seem to work!
+mov_fps=mov_fps                                 # Frames per second for the mov
+mov_dpi=mov_dpi                                 # Dots per inch for mov. DOESN'T seem to work!
 
 
 #mk_movies.py

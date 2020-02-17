@@ -201,13 +201,13 @@ def find_arrival_time(depth_earthquake=0, epi_dist=90, phase_name='P'):
     if phase_name in phase_list:
         # print('Phase arrives at this distance.. :)\n')
         arrival_time = float(phase_dist[str(epi_dist)][phase_name]['time'])
+        return(arrival_time)
     else:
-        print('Something wrong.....')
-        print(str(phase_name)+' not present at '+str(epi_dist)+'deg...')
-        print('exiting...\n')
-        sys.exit()
+        print('Arrival time for: '+str(phase_name)+' not present at '+str(epi_dist)+'deg...')
+        print('returning 1 hour...\n')
+        return 3600.0
     
-    return(arrival_time)
+
 
 ##################################################################################
     
@@ -279,14 +279,5 @@ def find_phases_at_dist(depth_earthquake=0, epi_dist=90):
     phase_list = list(phase_dist[str(epi_dist)].keys())
 
     return(phase_list)
-    
-##################################################################################
-    
-def find_phase_attenuation(phase_name='P'):
-    phase_attenuation=1
-
-
-    return(phase_attenuation)
-
     
 ##################################################################################

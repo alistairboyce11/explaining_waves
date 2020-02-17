@@ -25,6 +25,8 @@
         
     key_phase=key_phase                               # Key phase to plot raypath = e.g., ['P']
     
+    mirror_key_rp=mirror_key_rp                      # Mirror the key phase onto opposite hemisphere - show shadow zone.
+    
     output_location=output_location                 # String to locate waveform outputs
     
     mov_name_str=mov_name_str                        # String to name movie = e.g., 'CMB1'
@@ -71,7 +73,9 @@ from obspy.taup import plot_ray_paths
 
 import matplotlib
 from matplotlib.animation import FuncAnimation
-
+from matplotlib.collections import LineCollection
+from matplotlib.collections import PatchCollection
+import matplotlib.patches as patches
 
 # from matplotlib.animation import PillowWriter
 # More about the obspy routines we are using can be found here:
@@ -113,7 +117,7 @@ model = TauPyModel(model='ak135')
 
     # Funciton called to make the explaing waves movies.
 def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time=600, seis_channel='BXZ', filter_params=[],
-            extra_phases=None, overwrite_phase_defaults=False, phases_to_plot=['P'], key_phase=['P'], 
+            extra_phases=None, overwrite_phase_defaults=False, phases_to_plot=['P'], key_phase=['P'], mirror_key_rp=False,
             output_location='../wavefront_movie_outputs/', mov_name_str='', title='Inside the Deep Earth', load_image='',
             LL_L1_text='', LL_L2_text='', LR_L1_text='', LR_L2_text='',
             LL_L1_time=1.0, LL_L2_time=1.0, LR_L1_time=1.0, LR_L2_time=1.0,
@@ -145,7 +149,10 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
 
     radius = 6371                                       # radius of Earth in km
     seismometer_shake_duration = 10         # Duration of shaking at the seismometer after the arrival of a plotted phase.
-
+    interp_value=100            # Number of points in line interpolation for wavefront plotting.
+    Key_phase_label_time=3.0*60     # Length of time for key-phase to be labelled
+    Key_phase_width = 20            # Cycle time for incoming key phase....
+    
     #######################################################################################
 
     rays_dist_min=[]
@@ -196,11 +203,11 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
             for i in pause_vector:
                 # print(i)
                 for j in range(1, mov_pause_length, 1):
-                    # print(j)
-                    first_ind=int(np.where(frames == i)[0][0])
-                    # print(first_ind)
-                    frames=np.insert(frames,first_ind,i)
-    
+                    try:
+                        first_ind=int(np.where(frames == i)[0][0])
+                        frames=np.insert(frames,first_ind,i)
+                    except:
+                        pass
         frames=frames.flatten()
         if frames[0] != 0 or frames[-1] != propagation_time-1:
             print('Something wrong with calculation of frames vector')
@@ -227,7 +234,7 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
             rays = model.get_ray_paths(depth_earthquake, dist, phase_list=[phase])
             # Loop through rays found, some phases have multiple paths
             for ray in rays:
-                # Interpolate to regulard time array
+                # Interpolate to regular time array
                 ray_param=ray.ray_param/(radius*1000) # convert to s/km from s/radian.
                 dists = np.interp(time, ray.path['time'], ray.path['dist'], left = np.nan, right = np.nan)
                 depths = np.interp(time, ray.path['time'], ray.path['depth'], left = np.nan, right = np.nan)
@@ -264,7 +271,7 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
     # ##################### SET UP THE PLOTTING AREA HERE #######################
 
     # Use this function to setup the intial plot area!
-    fig,ax0,axgl,axgm,axgr,axll,axlr,axdi,di_figure,ax1,ax2,ax3 = spa.setup_plot(title=title,load_image=load_image,plot_width=16,plot_height=10, epi_dist=epi_dist, depth_earthquake=depth_earthquake, polar_plot_offset=theta_earthquake, radius=radius)
+    fig,ax0,axgl,axgm,axgr,axll,axlr,axdi,di_figure,ax1,ax2,ax3,ax4 = spa.setup_plot(title=title,load_image=load_image,plot_width=16,plot_height=10, epi_dist=epi_dist, depth_earthquake=depth_earthquake, polar_plot_offset=theta_earthquake, radius=radius, mirror_key_rp=mirror_key_rp)
 
     # ##########################################################################
     # set polar subplot as current axes
@@ -281,47 +288,38 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
         front_depth = depths_collected[:, t] # Cut at single time across all paths
         front_amps = amps_collected[:, t] # Cut at single time across all paths
         front_cols = cols_collected[:, t] # Cut at single time across all paths
-        # set colour and alphas.
-        # Make same length as interpolated values passed to line variable.
-        # Not sure why this isnt 100 but the work aroudn below works fine :)
-        rgba_colors = np.zeros((len(intp(front_cols, 100)),4))
-        rgba_colors[:,0] = intp(front_cols, 100)
-        rgba_colors[:,1] = intp(front_cols, 100)
-        rgba_colors[:,2] = intp(front_cols, 100)
-        rgba_colors[:,3] = intp(front_amps, 100)
         
-        # plot line towards the right side
-        line, = ax2.plot(intp(front_dist, 100),radius - intp(front_depth, 100),color=rgba_colors[0])
+        # NEW METHOD using line collections
+        x_r = intp(front_dist, interp_value)
+        x_l = intp(-1.*front_dist, interp_value)
+        y   = radius - intp(front_depth, interp_value)
+
+        rgba_colors = np.zeros((len(x_r),4))
+        rgba_colors[:,0] = intp(front_cols, interp_value)
+        rgba_colors[:,1] = intp(front_cols, interp_value)
+        rgba_colors[:,2] = intp(front_cols, interp_value)
+        rgba_colors[:,3] = intp(front_amps, interp_value)
+
+        points_r=np.array([x_r, y]).T.reshape(-1, 1, 2)
+        points_l=np.array([x_l, y]).T.reshape(-1, 1, 2)
+        
+        segs_r=np.concatenate([points_r[:-1], points_r[1:]], axis=1)
+        segs_l=np.concatenate([points_l[:-1], points_l[1:]], axis=1)
+
+        lc_r=LineCollection(segs_r,linewidth=2, linestyle='solid', colors=rgba_colors)
+        lc_l=LineCollection(segs_l,linewidth=2, linestyle='solid', colors=rgba_colors)
+
+        line = ax2.add_collection(lc_r)
         lines_right.append(line)
-        # mirror line towards the left
-        line, = ax2.plot(intp(-1.*front_dist, 100),radius - intp(front_depth, 100),color=rgba_colors[0])
+        line = ax2.add_collection(lc_l)
         lines_left.append(line)
 
-    ############################ add discontinuities - not used ##############################
-    # discons = rays.model.s_mod.v_mod.get_discontinuity_depths()
-    # discons = np.array([   0.  ,  35. ,  210. , 2891.5, 5153.5, 6371. ])
-    # discons = np.array([   0., 2891.5, 5153.5, 6371. ])
-    # ax2.set_yticks(radius - discons)
-    # ax2.xaxis.set_major_formatter(plt.NullFormatter())
-    # ax2.yaxis.set_major_formatter(plt.NullFormatter())
+    ############################ Add the first point of the key ray path ##############################
 
-    # # Fill in Earth colors:
-    # theta = np.arange(0, 2, (1./6000))*np.pi
-    # discons_plot=np.full((len(theta),len(discons)),radius-discons)
-    #
-    # # Lith:
-    # plt.fill_between(theta, discons_plot[:,0],discons_plot[:,2], color=(.4, .35, .34), alpha=0.4, lw=0)
-    # # Mantle
-    # plt.fill_between(theta, discons_plot[:,2],discons_plot[:,3], color=(.64, .11, .12), alpha=0.4, lw=0)
-    # # Outer core:
-    # plt.fill_between(theta, discons_plot[:,3],discons_plot[:,4], color=(.91, .49, .27), alpha=0.4, lw=0)
-    # # Inner core:
-    # plt.fill_between(theta, discons_plot[:,4],discons_plot[:,5], color=(.96, .91, .56), alpha=0.4, lw=0)
-    #
-
-
-    # Add the first point of the key ray path
     key_ray_path, = ax2.plot(key_path[0,0:t],radius - key_path[1,0:t],'b-', linewidth=1)
+
+    if mirror_key_rp:
+        key_ray_path_m, = ax2.plot(-key_path[0,0:t],radius - key_path[1,0:t],'b-', linewidth=1)
 
     # Pretty earthquake marker.
     eq_symbol, = ax2.plot([0], [radius - depth_earthquake],
@@ -369,8 +367,8 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
     max_amp    = np.ceil(np.max(seis_data))  + 0.1
     min_amp    = np.floor(np.min(seis_data)) - 0.1
 
-    # Specific details of seismogram window - set ax3 as current axes
-    plt.sca(ax3)
+    # Specific details of seismogram window - set ax4 as current axes
+    plt.sca(ax4)
 
     iter=0
     TW_duration=300                                             # Seismogram plot window length (s)
@@ -387,27 +385,27 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
     seis_plot_time      = np.arange(0,TW_duration,delta)
 
     # Set seismogram axes as tick pointer width plus TW duration. min->max amp.
-    ax3.set_xlim([-tick_pointer_width,TW_duration])
-    ax3.set_ylim([min_amp,max_amp])
-    ax3.set_yticks([])                                               # Hides y-axis labels
+    ax4.set_xlim([-tick_pointer_width,TW_duration])
+    ax4.set_ylim([min_amp,max_amp])
+    ax4.set_yticks([])                                               # Hides y-axis labels
 
     # Static minute labelling of x-ticks
-    # ax3.set_xlabel('Time before present (min)', fontsize=10)
-    # ax3.set_xticks(seis_plot_time[0::60/delta])
-    # ax3.set_xticklabels([int(i) for i in seis_plot_time[0::60/delta]/60 ] )
+    # ax4.set_xlabel('Time before present (min)', fontsize=10)
+    # ax4.set_xticks(seis_plot_time[0::60/delta])
+    # ax4.set_xticklabels([int(i) for i in seis_plot_time[0::60/delta]/60 ] )
 
     # No x-ticks
-    # ax3.set_xticks([])                                               # Hides x-axis labels
+    # ax4.set_xticks([])                                               # Hides x-axis labels
 
     # Things below here are those that change with time.
     # These will need to be in the animate function.
 
     # Dynamic x-tick labelling.
-    ax3.set_xlabel('Time after Earthquake (min)', fontsize=14)
+    ax4.set_xlabel('Time after Earthquake (min)', fontsize=14)
     x_label_pos = seis_plot_time[round((divmod(iter,60)[1])/delta)::round(60/delta)]
     x_label_val = [ int(np.floor(i)) for i in seis_times_new[round((60+iter)/delta):round((TW_duration/delta)+(iter/delta))+1:round(60/delta)]/60 ][::-1]
-    ax3.set_xticks(x_label_pos)
-    ax3.set_xticklabels(x_label_val)
+    ax4.set_xticks(x_label_pos)
+    ax4.set_xticklabels(x_label_val)
 
     # Cut the seismogram up into the correct length
     seis_data_cut       = seis_data_new[0+round(iter/delta):round((TW_duration/delta)+(iter/delta)):1]
@@ -416,22 +414,38 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
     tick_x=[-tick_pointer_width, -1]
     tick_y=[seis_data_cut[-1],seis_data_cut[-1]]
 
-    drawing_tick, = ax3.plot(tick_x ,tick_y,'b-', linewidth=2)
+    drawing_tick, = ax4.plot(tick_x ,tick_y,'b-', linewidth=2)
 
     # Puts triangle at end of drawing tick
-    triangle_tick, = ax3.plot(-5, seis_data_cut[-1], marker=(3, 0, (-90)), color='b', markersize=10, zorder=10,
+    triangle_tick, = ax4.plot(-5, seis_data_cut[-1], marker=(3, 0, (-90)), color='b', markersize=10, zorder=10,
                             markeredgewidth=0.5, markeredgecolor="0.3", clip_on=False)
 
     # Think the seismogram need to be flipped, and then plotted
-    seis, = ax3.plot(seis_plot_time, seis_data_cut[::-1],'r-', linewidth=1)
+    seis, = ax4.plot(seis_plot_time, seis_data_cut[::-1],'r-', linewidth=1)
 
     # Adds timing counter
-    ax3.text(TW_duration-(TW_duration/40), max_amp-0.05, 'Minutes after Earthquake: '+str(int(np.floor(iter))), ha="right", va="top",
+    ax4.text(TW_duration-(TW_duration/40), max_amp-0.05, 'Minutes after Earthquake: '+str(int(np.floor(iter))), ha="right", va="top",
                             fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='grey', pad=5.0))
 
     # Adds label for waiting arriving earthquakes waves....
-    ax3.text(0, min_amp+0.05, 'Earthquake waves arriving', ha="left", va="bottom",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
+    ax4.text(0, min_amp+0.05, 'Earthquake waves arriving', ha="left", va="bottom",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
 
+    # Set a dummy marker in place for the key phase labelling.
+    label_boxes=[]
+    key_phase_seis_time_end = int(Key_phase_width)
+    key_phase_seis_time_start = int(0)
+    
+    key_phase_max_amp = np.max(np.abs(seis_data_cut[::-1][key_phase_seis_time_start:key_phase_seis_time_end]))
+    
+    # rect = Rectangle((x , y), width, height)
+    rect = patches.Rectangle((key_phase_seis_time_start , -key_phase_max_amp), Key_phase_width, 2*key_phase_max_amp, facecolor=None,edgecolor=None,alpha=0)
+    # Create patch collection with specified colour/alpha
+    # pc = PatchCollection(rect, facecolor=None,edgecolor=None,alpha=0)
+
+    # Add collection to axes
+    phase_box = ax4.add_patch(rect)
+    label_boxes.append(phase_box)
+    
     #####################################################################
 
     frame_number    = propagation_time
@@ -455,32 +469,30 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
             front_depth = depths_collected[:, t]
             front_amps = amps_collected[:, t] # Cut at single time across all paths
             front_cols = cols_collected[:, t] # Cut at single time across all paths
-            # update line to the right
-            line.set_xdata(intp(front_dist,100))
-            line.set_ydata(radius - intp(front_depth,100))
-            # mirror update for lines to left
-            lines_left[l].set_xdata(intp(-1.*front_dist,100))
-            lines_left[l].set_ydata(radius - intp(front_depth,100))
-            
-            # set colour and alphas.
-            # Make same length as interpolated values passed to line variable.
-            # Not sure why this isnt 100 but the work aroudn below works fine :)
-            rgba_colors = np.zeros((len(intp(front_cols, 100)),4))
-            rgba_colors[:,0] = intp(front_cols, 100)
-            rgba_colors[:,1] = intp(front_cols, 100)
-            rgba_colors[:,2] = intp(front_cols, 100)
-            rgba_colors[:,3] = intp(front_amps, 100)
 
-            # # Set alphas - intrinsic amplitude decay : can be scaled:
-            # # alpha_atten=1
-            # # line.set_alpha(alpha_atten)
-            # # lines_left[l].set_alpha(alpha_atten)
-            #
-            # update colour
-            # col = 1 #
-            # cols = [col, col,col]
-            line.set_color(rgba_colors[0])
-            lines_left[l].set_color(rgba_colors[0])
+            
+            # NEW METHOD using line collections
+            x_r = intp(front_dist, interp_value)
+            x_l = intp(-1.*front_dist, interp_value)
+            y   = radius - intp(front_depth, interp_value)
+
+            rgba_colors = np.zeros((len(x_r),4))
+            rgba_colors[:,0] = intp(front_cols, interp_value)
+            rgba_colors[:,1] = intp(front_cols, interp_value)
+            rgba_colors[:,2] = intp(front_cols, interp_value)
+            rgba_colors[:,3] = intp(front_amps, interp_value)
+
+            points_r=np.array([x_r, y]).T.reshape(-1, 1, 2)
+            points_l=np.array([x_l, y]).T.reshape(-1, 1, 2)
+        
+            segs_r=np.concatenate([points_r[:-1], points_r[1:]], axis=1)
+            segs_l=np.concatenate([points_l[:-1], points_l[1:]], axis=1)
+
+            line.set_segments(segs_r)
+            line.set_color(rgba_colors)
+
+            lines_left[l].set_segments(segs_l)
+            lines_left[l].set_color(rgba_colors)
 
         print('Time step calculated: '+str(t))
 
@@ -516,10 +528,9 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
 
         # Constant drawing of ray path
         key_ray_path.set_data(key_path[0,0:t],radius - key_path[1,0:t])
-
-        # Think the seismogram need to be flipped, and then plotted
-        # seis, = ax3.plot(seis_plot_time, seis_data_cut[::-1],'r-', linewidth=1)
-
+        if mirror_key_rp:
+            key_ray_path_m.set_data(-key_path[0,0:t],radius - key_path[1,0:t])
+        
         seis_data_cut       = seis_data_new[0+round(t/delta):round((TW_duration/delta)+(t/delta)):1]
         seis.set_data(seis_plot_time, seis_data_cut[::-1]) # updating seismogram
 
@@ -532,7 +543,7 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
         triangle_tick.set_data(-5, seis_data_cut[-1])
 
         # Adds timing counter
-        ax3.text(TW_duration-(TW_duration/40), max_amp-0.05, 'Minutes after Earthquake: '+str(int(np.floor(t/60))), ha="right", va="top",
+        ax4.text(TW_duration-(TW_duration/40), max_amp-0.05, 'Minutes after Earthquake: '+str(int(np.floor(t/60))), ha="right", va="top",
                                 fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='grey', pad=5.0))
 
         # Adds label for waiting arriving earthquakes waves....
@@ -545,43 +556,81 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
             waiting_gap=wait_space*rem_diff
             wait_point='.'
             waiting=wait_rem*wait_point
-            ax3.text(0, min_amp+0.05, 'Earthquake waves arriving '+str(waiting)+str(waiting_gap), ha="left", va="bottom",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
+            ax4.text(0, min_amp+0.05, 'Earthquake waves arriving '+str(waiting)+str(waiting_gap), ha="left", va="bottom",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
         else:
-            ax3.text(0, min_amp+0.05, 'Waves arrived!                               ', ha="left", va="bottom",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
+            ax4.text(0, min_amp+0.05, 'Waves arrived!                               ', ha="left", va="bottom",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
 
         # Dynamic x-tick labelling.
-        ax3.set_xlabel('Time after Earthquake (min)', fontsize=14)
+        ax4.set_xlabel('Time after Earthquake (min)', fontsize=14)
         x_label_pos = seis_plot_time[round((divmod(t,60)[1])/delta)::round(60/delta)]
         x_label_val = [ int(np.floor(i)) for i in seis_times_new[round((60+t)/delta):round((TW_duration/delta)+(t/delta))+1:round(60/delta)]/60 ][::-1]
-        ax3.set_xticks(x_label_pos)
-        ax3.set_xticklabels(x_label_val)
+        ax4.set_xticks(x_label_pos)
+        ax4.set_xticklabels(x_label_val)
         
+        # Jenny wanted to add a label for the phase we are interested in.
+        # want a red box and also a text label.
+        
+        # 
+        if t >= np.floor(key_phase_A_time + Key_phase_width) and t < np.floor(key_phase_A_time + Key_phase_label_time):
+            # Remove phase box from previous step
+            try:
+                phase_box.remove()
+            except:
+                pass
+            try:
+                phase_label.remove()
+            except:
+                pass
+                
+            # Here is where the magic happens
+            
+            key_phase_seis_time_end = int(np.floor(t - key_phase_A_time))
+            key_phase_seis_time_start = int(np.floor(t - key_phase_A_time - Key_phase_width))
+            
+            key_phase_max_amp = np.max(np.abs(seis_data_cut[:][key_phase_seis_time_start:key_phase_seis_time_end]))
+            
+            phase_label = ax4.text(key_phase_seis_time_end+0.05, key_phase_max_amp+0.05, 'Phase of interest!', ha="left",va="bottom",fontsize=14, color='black') 
+            #, bbox=dict(facecolor=None, edgecolor=None, pad=1.0))
+
+            phase_box.set_xy((key_phase_seis_time_start , -key_phase_max_amp))
+            phase_box.set_edgecolor('b')
+            phase_box.set_height(2*key_phase_max_amp)
+            # phase_box.set_alpha(1.0)
+            
+            
+        elif t >= np.floor(key_phase_A_time + Key_phase_label_time):
+            # want to remove the above features.
+            phase_box.remove()
+            phase_label.remove()
         
         # This part plots the time dependent appearance of labels and the lower image
         # Layer 1 text - left label
         if len(LL_L1_text) > 0: 
             if t >= LL_L1_time*np.floor(F_A_time)-2:
-                axll.text(0.5, 0.5, LL_L1_text, ha="center", va="center",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
+                axll.text(0.5, 0.5, LL_L1_text, ha="center", va="center",fontsize=16, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
         # Layer 2 text - left label
         if len(LL_L2_text) > 0: 
             if t >= LL_L2_time*np.floor(F_A_time)-2:
-                axll.text(0.5, 0.0, LL_L2_text, ha="center", va="center",fontsize=12, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
+                axll.text(0.5, 0.0, LL_L2_text, ha="center", va="center",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
         # Layer 1 text - right label
         if len(LR_L1_text) > 0: 
             if t >= LR_L1_time*np.floor(F_A_time)-2:
-                axlr.text(0.5, 0.5, LR_L1_text, ha="center", va="center",fontsize=14, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0)) # Add some labels if you wish
+                axlr.text(0.5, 0.5, LR_L1_text, ha="center", va="center",fontsize=16, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0)) # Add some labels if you wish
         # Layer 2 text - right label
         if len(LR_L2_text) > 0: 
             if t >= LR_L2_time*np.floor(F_A_time)-2:
-                axlr.text(0.5, 0.0, LR_L2_text, ha="center", va="center",fontsize=12, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0)) # Add some labels if you wish
+                axlr.text(0.5, 0.0, LR_L2_text, ha="center", va="center",fontsize=14, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0)) # Add some labels if you wish
 
         # Plot descriptive image (di) between the labels.
         if len(di_figure) > 0: 
             if t >= LR_L1_time*np.floor(F_A_time)-2:
                 axdi.imshow(di_figure, alpha=1)
-
-        return(line,eq_symbol,seismom_symbol,key_ray_path,seis,drawing_tick,triangle_tick)
-
+        
+        if mirror_key_rp:
+            return(line,lc_r,lc_l,eq_symbol,seismom_symbol,key_ray_path,key_ray_path_m,seis,drawing_tick,triangle_tick,rect,phase_box)
+        else:
+            return(line,lc_r,lc_l,eq_symbol,seismom_symbol,key_ray_path,seis,drawing_tick,triangle_tick,rect,phase_box)
+            
     # Sets up animation
     animation = FuncAnimation(
                               # Your Matplotlib Figure object

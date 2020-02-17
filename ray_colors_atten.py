@@ -73,7 +73,7 @@ def get_ray_color(phase,dist,time,dists,depths,ray_param):
     if 'P' in str(phase):
         val=1
     if 'S' in str(phase):
-        val=0.9
+        val=0.8
     # Set cols - P-different to S
     cols=cols*val
         
@@ -115,7 +115,6 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
         if np.nanmax(depths) > disconts[1]-5:
             # Need to find first time point where depth is > 2891.5 -5
             ind_RT0=np.where(depths > disconts[1]-5)[0][0]
-            
             # Do Zoeppritz calcualtions
             d0=disconts[1]
             layer1= [get_vp_a(d0), get_vs_a(d0), get_rho_a(d0)]
@@ -128,17 +127,32 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
                 if phase == 'ScS':
                     R_RT0=np.abs(Rmatrix_RT0[0,0])  # This will be ScS on vertical
                 elif phase == 'PcP':
-                    R_RT0=np.abs(Rmatrix_RT0[2,2]) # This will be PcP on vertical
+                    # R_RT0=np.abs(Rmatrix_RT0[2,2]) # This will be PcP on vertical
+                    # Fix R_RT0 for PcP since zoeppritz is unstable
+                    R_RT0=0.2
             # print(phase, dist, R_RT0)
             RT_point_amps[ind_RT0:,0]=R_RT0
 
+    #####################################################################
+    
+    if phase == 'Pdiff' or phase == 'Sdiff':
+        # Check phase reaches CMB
+        if np.nanmax(depths) > disconts[1]-5:
+            # Need to find first time point where depth is > 2891.5 -5
+            ind_RT0=np.where(depths > disconts[1]-5)[0][0]
+            # Fix R_RT0 for Xdiff since zoeppritz is unsuitable
+            R_RT0=0.2
+            RT_point_amps[ind_RT0:,0]=R_RT0
+            
      #####################################################################
     if phase == 'PP' or phase == 'SS':
         # Check phase reaches bounce point
         if dists[-1] >= (dist/180*np.pi)/2 or math.isnan(dists[-1]):
             # Need to find first time point where dpeth is < 5
-            ind_RT0=np.where(depths < disconts[0]+5)[0][1]
-            
+            try:
+                ind_RT0=np.where(depths < disconts[0]+5)[0][1]
+            except:
+                ind_RT0=len(RT_point_amps[:,0])
             # Do Zoeppritz calcualtions
             d0=disconts[0]
             layer1= [get_vp_a(d0), get_vs_a(d0), get_rho_a(d0)]
@@ -354,12 +368,15 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
                 CMB_shallow=np.where(depths > disconts[1]-5)[0]
                 CMB_deep   =np.where(depths < disconts[1]+5)[0]
                 CMB_intersect=np.intersect1d(CMB_shallow,CMB_deep)
-        
-                # First turning point:
-                K_turn_1=np.where(depths >= np.nanmax(depths)-1)[0][0]
-                # Find first index of CMB intersect > K_turn_1
-                CMB_intersect_ind=next(k for k, value in enumerate(CMB_intersect) if value > K_turn_1)
-                ind_RT1=CMB_intersect[CMB_intersect_ind]
+                try:
+                    # First turning point:
+                    K_turn_1=np.where(depths >= np.nanmax(depths)-1)[0][0]
+                    # Find first index of CMB intersect > K_turn_1
+                    CMB_intersect_ind=next(k for k, value in enumerate(CMB_intersect) if value > K_turn_1)
+                    ind_RT1=CMB_intersect[CMB_intersect_ind]
+                except:
+                    ind_RT1=len(RT_point_amps[:,1])
+
                 
             
                 # Do Zoeppritz calcualtions

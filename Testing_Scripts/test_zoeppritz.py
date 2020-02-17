@@ -18,7 +18,7 @@ model = TauPyModel(model='ak135')
 
 
 disconts = [0, 2891.5, 5153.5 ]
-depth=disconts[0]
+depth=disconts[1]
 
 
 print(rca.get_vp_a(depth))
@@ -39,7 +39,7 @@ layer2= [rca.get_vp_b(depth), rca.get_vs_b(depth), rca.get_rho_b(depth)]
 # layer2 = [8065, 0, 9903]
 
 #Define ray parameter this example is for 50 deg PcP
-p = (8.840*np.pi/180)/6371000
+p = (2.225*np.pi/180)/6371000
 
 #Collate layers
 # layers = [layer1, layer2]
@@ -47,4 +47,4 @@ p = (8.840*np.pi/180)/6371000
 #Call Zoeppritz function
 Rmatrix = zpc.zoeppritz(p,layer1,layer2)
 
-print(np.abs(Rmatrix[5,5]))
+print(Rmatrix)

@@ -12,6 +12,7 @@ extra_phases=extra_phases                       # Extra phases to add to the pha
 overwrite_phase_defaults=overwrite_phase_defaults # Overwrite the default phases in the created dictionary = True/False
 phases_to_plot=phases_to_plot                     # List of phases wavefronts to plot = e.g., ['P', 'PcP']
 key_phase=key_phase                               # Key phase to plot raypath = e.g., ['P']
+mirror_key_rp=mirror_key_rp                      # Mirror the key phase onto opposite hemisphere - used to plot shadow zone.
 output_location=output_location                 # String to locate waveform outputs
 mov_name_str=mov_name_str                        # String to name movie = e.g., 'CMB1'
 title=title                                     # Movie title = e.g., 'Inside the Deep Earth'

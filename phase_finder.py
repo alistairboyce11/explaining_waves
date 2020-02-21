@@ -48,12 +48,9 @@ from obspy.taup import plot_travel_times
 from obspy.taup import plot_ray_paths
 
 import os.path
-import time
 import glob
-import shutil
 import numpy as np
 import scipy
-import time
 import sys
 
 model = TauPyModel(model='ak135')
@@ -236,9 +233,9 @@ def find_min_ray_dist(depth_earthquake=0, phase_name='P'):
     # Because Taup cannot handle eq_depth=0km, epi_dist=0km
     # Force min_ray_dist=0 if above calculcation yeilds 1.
     
-    # if min_ray_dist == 1:
-    #     print('Forcing min_ray_dist = 0')
-    #     min_ray_dist = 0
+    if min_ray_dist == 1:
+        print('Forcing min_ray_dist = 0')
+        min_ray_dist = 0
     
     return(min_ray_dist)
     

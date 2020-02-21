@@ -1,3 +1,22 @@
+Python package requirements:
+
+import numpy
+import matplotlib
+import matplotlib
+import sys,glob
+import os.path
+from IPython.display import HTML, Image
+matplotlib.rc('animation', html='html5')
+import obspy
+import json
+import io
+import scipy
+import instaseis
+import math
+
+
+
+
 # wavefront_movie
 
 Parameters:
@@ -27,7 +46,7 @@ LR_L1_time = 1                                  # Layer 1 text time for RHS seis
 LR_L2_time = 1                                  # Layer 2 text time for RHS seismogram plot as a function of First arrival time
 mov_pause_times=mov_pause_times             # Times at which to pause movie for 5 seconds
 mov_fps=mov_fps                                 # Frames per second for the mov
-mov_dpi=mov_dpi                                 # Dots per inch for mov. DOESN'T seem to work!
+mov_dpi=mov_dpi                                 # Dots per inch for mov.
 
 
 #mk_movies.py

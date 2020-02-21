@@ -54,7 +54,7 @@ This script contains the function that tests input parameters to explaining wave
 
     mov_fps=mov_fps                                 # frames per second for the mov
     
-    mov_dpi=mov_dpi                                 # Dots per inch for mov. DOESNT seem to work!
+    mov_dpi=mov_dpi                                 # Dots per inch for mov.
 
 '''
 
@@ -62,8 +62,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sys,glob
 import os.path
-from pathlib import Path
-home = str(Path.home())
 
 def test_input_params(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time=600, seis_channel='BXZ', filter_params=[],
             extra_phases=None, phases_to_plot=['P'], key_phase='P',
@@ -143,7 +141,7 @@ def test_input_params(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propa
         if not isinstance(load_image, str):
             print('Bad specification of load_image - must be string')
             sys.exit()
-        if not os.path.exists(home + '/Google_Drive/GITHUB_AB/wavefront_movie_images/' + load_image):
+        if not os.path.exists('../wavefront_movie_images/' + load_image):
             print('Bad specification of load_image - path does NOT exist')
             sys.exit()
 

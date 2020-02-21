@@ -161,16 +161,16 @@ ax4.text(0, min_amp+0.05, 'Earthquake waves arriving '+str(waiting), ha="left", 
 
 if len(LL_L1_text) > 0:
     # Layer 1 text - left label
-    axll.text(0.5, 0.7, LL_L1_text, ha="center", va="center",fontsize=8, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
+    axll.text(0.5, 0.6, LL_L1_text, ha="center", va="center",fontsize=8, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
 if len(LL_L2_text) > 0:
     # Layer 2 text - left label
-    axll.text(0.5, 0.2, LL_L2_text, ha="center", va="center",fontsize=7, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
+    axll.text(0.5, 0.1, LL_L2_text, ha="center", va="center",fontsize=7, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
 if len(LR_L1_text) > 0:
     # Layer 1 text - right label
-    axlr.text(0.5, 0.7, LR_L1_text, ha="center", va="center",fontsize=8, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0)) # Add some labels if you wish
+    axlr.text(0.5, 0.6, LR_L1_text, ha="center", va="center",fontsize=8, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0)) # Add some labels if you wish
 if len(LR_L2_text) > 0:
     # Layer 2 text - right label
-    axlr.text(0.5, 0.2, LR_L2_text, ha="center", va="center",fontsize=7, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0)) # Add some labels if you wish
+    axlr.text(0.5, 0.1, LR_L2_text, ha="center", va="center",fontsize=7, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0)) # Add some labels if you wish
 
 # Plot descriptive image (di) between the labels.
 if len(di_figure) > 0:

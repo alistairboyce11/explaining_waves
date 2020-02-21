@@ -152,7 +152,7 @@ def setup_plot(title='', load_image='', plot_width=16, plot_height=10, epi_dist=
     
     if mirror_key_rp:
 
-        # define overlying polar plot that will hold the wavefronts
+        # define overlying polar plot that will hold the shadow zone markers
         ax3 = fig.add_axes([0.05, 0.25, 0.45, 0.7], projection=None, polar=True, facecolor='green',frame_on=False)
         ax3.set_theta_zero_location('N', offset=polar_plot_offset)
         ax3.set_theta_direction(-1)

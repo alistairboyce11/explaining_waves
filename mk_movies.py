@@ -56,15 +56,12 @@ import os.path
 # Function used to make movie
 import expl_waves_movie as ewm
 
-
-
-
 # Other testing runs
 
 # P-wave imaging
 ewm.mk_mov(epi_dist=70, theta_earthquake=50, depth_earthquake=0, propagation_time=1200, seis_channel='BXZ', filter_params=[0.4, 2.0],
             extra_phases=['PP', 'SS'], overwrite_phase_defaults=False, phases_to_plot=['P', 'PcP', 'PKP', 'PKiKP', 'PP', 'PKIKP'], key_phase=['P'], mirror_key_rp=False,
-            output_location='../wavefront_movie_outputs/', mov_name_str='P_Tomo_test', title='Imaging the mantle', load_image='Al.png',
+            output_location='../wavefront_movie_outputs/', mov_name_str='P_Tomo_test', title='Imaging the mantle', load_image='Cartoons/Al_from_group_name.png',
             LL_L1_text='Earthquake waves travel outwards in all\n directions from where an earthquake happens',
             LL_L2_text='These waves can tell us about the material\n they travel through on their journey',
             LR_L1_text='\"I look at the time it takes for P waves to\n arrive back at the Earth’s surface\"',
@@ -72,17 +69,17 @@ ewm.mk_mov(epi_dist=70, theta_earthquake=50, depth_earthquake=0, propagation_tim
             LL_L1_time=0.5, LL_L2_time=0.75, LR_L1_time=1.1, LR_L2_time=1.2,
             mov_pause_times=[], mov_fps=45, mov_dpi=150)
             
-### Diffraction
-ewm.mk_mov(epi_dist=145, theta_earthquake=-18, depth_earthquake=0, propagation_time=1400, seis_channel='BXZ', filter_params=[],
-            extra_phases=['PP', 'SS'], overwrite_phase_defaults=False, phases_to_plot=['P', 'PcP', 'PP', 'Pdiff', 'PKP', 'PKIKP', 'PKiKP'], key_phase=['Pdiff'],  mirror_key_rp=False,
-            output_location='../wavefront_movie_outputs/', mov_name_str='Core_Diff_test', title='Core diffracted waves', load_image='Li.png',
-            LL_L1_text='Some S-wave energy leaves the earthquake\n and arrives at the core at a special angle',
-            LL_L2_text='At this specific angle the wave \'hugs\' the\n edge of the core - this is called wave diffraction',
-            LR_L1_text='\"I search for core \'hugging\' waves\n in the seismogram\"',
-            LR_L2_text='\"I locate the mantle plume anchors that cause\n these waves to arrive from unexpected directions\"',
-            LL_L1_time=0.5, LL_L2_time=0.75, LR_L1_time=1.15, LR_L2_time=1.3,
-            mov_pause_times=[], mov_fps=45, mov_dpi=150)
-# #
+# ### Diffraction
+# ewm.mk_mov(epi_dist=145, theta_earthquake=-18, depth_earthquake=0, propagation_time=1400, seis_channel='BXZ', filter_params=[],
+#             extra_phases=['PP', 'SS'], overwrite_phase_defaults=False, phases_to_plot=['P', 'PcP', 'PP', 'Pdiff', 'PKP', 'PKIKP', 'PKiKP'], key_phase=['Pdiff'],  mirror_key_rp=False,
+#             output_location='../wavefront_movie_outputs/', mov_name_str='Core_Diff_test', title='Core diffracted waves', load_image='Cartoons/Li_from_group_name.png',
+#             LL_L1_text='Some S-wave energy leaves the earthquake\n and arrives at the core at a special angle',
+#             LL_L2_text='At this specific angle the wave \'hugs\' the\n edge of the core - this is called wave diffraction',
+#             LR_L1_text='\"I search for core \'hugging\' waves\n in the seismogram\"',
+#             LR_L2_text='\"I locate the mantle plume anchors that cause\n these waves to arrive from unexpected directions\"',
+#             LL_L1_time=0.5, LL_L2_time=0.75, LR_L1_time=1.15, LR_L2_time=1.3,
+#             mov_pause_times=[], mov_fps=45, mov_dpi=150)
+# # #
 
 
 
@@ -94,7 +91,7 @@ ewm.mk_mov(epi_dist=145, theta_earthquake=-18, depth_earthquake=0, propagation_t
 # # P-wave imaging
 # ewm.mk_mov(epi_dist=70, theta_earthquake=50, depth_earthquake=0, propagation_time=1200, seis_channel='BXZ', filter_params=[0.4, 2.0],
 #             extra_phases=['PP', 'SS'], overwrite_phase_defaults=False, phases_to_plot=['P', 'PcP', 'PKP', 'PKiKP', 'PP', 'PKIKP'], key_phase=['P'], mirror_key_rp=False,
-#             output_location='../wavefront_movie_outputs/', mov_name_str='P_Tomo', title='Imaging the mantle', load_image='Al.png',
+#             output_location='../wavefront_movie_outputs/', mov_name_str='P_Tomo', title='Imaging the mantle', load_image='Cartoons/Al_from_group_name.png',
 #             LL_L1_text='Earthquake waves travel outwards in all\n directions from where an earthquake happens',
 #             LL_L2_text='These waves can tell us about the material\n they travel through on their journey',
 #             LR_L1_text='\"I look at the time it takes for P waves to\n arrive back at the Earth’s surface\"',
@@ -105,7 +102,7 @@ ewm.mk_mov(epi_dist=145, theta_earthquake=-18, depth_earthquake=0, propagation_t
 # ### ScS CMB imaging
 # ewm.mk_mov(epi_dist=60, theta_earthquake=-32, depth_earthquake=0, propagation_time=1800, seis_channel='BXT', filter_params=[],
 #             extra_phases=['PP', 'SS'], overwrite_phase_defaults=False, phases_to_plot=['S', 'ScS', 'SS'], key_phase=['ScS'], mirror_key_rp=False,
-#             output_location='../wavefront_movie_outputs/', mov_name_str='ScS_CMB', title='Investigating the Core-Mantle Boundary', load_image='Jenny.png',
+#             output_location='../wavefront_movie_outputs/', mov_name_str='ScS_CMB', title='Investigating the Core-Mantle Boundary', load_image='Cartoons/Jenny_from_group_name.png',
 #             LL_L1_text='S-waves are one type of wave that travel\n outwards in all directions from an earthquake',
 #             LL_L2_text='They bounce off the core-mantle boundary,\n and are sensitive to the structure in the deep mantle',
 #             LR_L1_text='\"I look for these core-bouncing waves\n in the seismogram\"',
@@ -116,7 +113,7 @@ ewm.mk_mov(epi_dist=145, theta_earthquake=-18, depth_earthquake=0, propagation_t
 # ### Diffraction
 # ewm.mk_mov(epi_dist=145, theta_earthquake=-18, depth_earthquake=0, propagation_time=1400, seis_channel='BXZ', filter_params=[],
 #             extra_phases=['PP', 'SS'], overwrite_phase_defaults=False, phases_to_plot=['P', 'PcP', 'PP', 'Pdiff', 'PKP', 'PKIKP', 'PKiKP'], key_phase=['Pdiff'],  mirror_key_rp=False,
-#             output_location='../wavefront_movie_outputs/', mov_name_str='Core_Diff', title='Core diffracted waves', load_image='Li.png',
+#             output_location='../wavefront_movie_outputs/', mov_name_str='Core_Diff', title='Core diffracted waves', load_image='Cartoons/Li_from_group_name.png',
 #             LL_L1_text='Some S-wave energy leaves the earthquake\n and arrives at the core at a special angle',
 #             LL_L2_text='At this specific angle the wave \'hugs\' the\n edge of the core - this is called wave diffraction',
 #             LR_L1_text='\"I search for core \'hugging\' waves\n in the seismogram\"',
@@ -151,7 +148,7 @@ ewm.mk_mov(epi_dist=145, theta_earthquake=-18, depth_earthquake=0, propagation_t
 # ewm.mk_mov(epi_dist=179, theta_earthquake=78, depth_earthquake=0, propagation_time=1800, seis_channel='BXZ', filter_params=[],
 #             extra_phases=['PP', 'SS'], overwrite_phase_defaults=False,
 #             phases_to_plot=['P', 'PcP', 'PP', 'Pdiff', 'PKP', 'PKIKP', 'PKiKP','S', 'ScS', 'SS'], key_phase=['PKIKP'],  mirror_key_rp=False,
-#             output_location='../wavefront_movie_outputs/', mov_name_str='Full_Wavefield', title='Complex P and S waves', load_image='vault.jpg',
+#             output_location='../wavefront_movie_outputs/', mov_name_str='Full_Wavefield', title='Complex P and S waves', load_image='',
 #             LL_L1_text='P waves and S waves are caused\n by all natural earthquakes',
 #             LL_L2_text='The faster traveling P waves take only 20 minutes\n to travel to the opposite side of the Earth!',
 #             LR_L1_text='Sensitive instruments called seismometers\n are used to measure the shaking of the ground\n caused by the earthquake waves at the surface',

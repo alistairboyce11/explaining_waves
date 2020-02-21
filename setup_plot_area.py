@@ -23,8 +23,7 @@ import matplotlib
 
 from IPython.display import HTML, Image
 matplotlib.rc('animation', html='html5')
-from pathlib import Path
-home = str(Path.home())
+import os.path
 
 import matplotlib.pylab as pylab
 params = {'legend.fontsize': 'x-large',
@@ -76,7 +75,7 @@ def setup_plot(title='', load_image='', plot_width=16, plot_height=10, epi_dist=
     
     # Load the image that is going in the small axes at the bottom of the plot - usually a png
     if len(load_image) > 0:
-        di_loc = home + '/Google_Drive/GITHUB_AB/wavefront_movie_images/' + load_image
+        di_loc = '../wavefront_movie_images/' + load_image
         di_figure = plt.imread(di_loc)
     else:
         di_figure=np.array([])
@@ -88,7 +87,7 @@ def setup_plot(title='', load_image='', plot_width=16, plot_height=10, epi_dist=
     # # ax1.text(0.01, 0.95, "ax1", size=12) # Add some labels if you wish
     ax1.set_xticks([])
     ax1.set_yticks([])
-    im = home + '/Google_Drive/GITHUB_AB/wavefront_movie_home_screen/Interior_XC_clip_square.png'
+    im = '../wavefront_movie_home_screen/Interior_XC_clip_square.png'
     background_figure = plt.imread(im)
     ax1.imshow(background_figure, alpha=1)
 

@@ -34,7 +34,6 @@ import sys,glob
 import os.path
 from IPython.display import HTML, Image
 matplotlib.rc('animation', html='html5')
-import matplotlib.patches as patches
 
 # velocity model as a function of depth.
 model = TauPyModel(model='ak135')

@@ -55,7 +55,7 @@
     
     mov_fps=mov_fps                                 # frames per second for the mov
     
-    mov_dpi=mov_dpi                                 # Dots per inch for mov. DOESNT seem to work!
+    mov_dpi=mov_dpi                                 # Dots per inch for mov. 
 
 '''
 
@@ -94,8 +94,6 @@ params = {'legend.fontsize': 'x-large',
          'ytick.labelsize':'16'}
 pylab.rcParams.update(params)
 
-from pathlib import Path
-home = str(Path.home())
 
 # Function used to test the input parameters to movie making function:
 import input_params as ip
@@ -233,18 +231,31 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
             # get raypaths
             rays = model.get_ray_paths(depth_earthquake, dist, phase_list=[phase])
             # Loop through rays found, some phases have multiple paths
-            for ray in rays:
-                # Interpolate to regular time array
-                ray_param=ray.ray_param/(radius*1000) # convert to s/km from s/radian.
-                dists = np.interp(time, ray.path['time'], ray.path['dist'], left = np.nan, right = np.nan)
-                depths = np.interp(time, ray.path['time'], ray.path['depth'], left = np.nan, right = np.nan)
-                amps = rca.get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel)
-                cols = rca.get_ray_color(phase,dist,time,dists,depths,ray_param)
-                # save paths
-                dists_collected.append(dists)
-                depths_collected.append(depths)
-                amps_collected.append(amps)
-                cols_collected.append(cols)
+            # for ray in rays:
+            #     # Interpolate to regular time array
+            #     ray_param=ray.ray_param/(radius*1000) # convert to s/km from s/radian.
+            #     dists = np.interp(time, ray.path['time'], ray.path['dist'], left = np.nan, right = np.nan)
+            #     depths = np.interp(time, ray.path['time'], ray.path['depth'], left = np.nan, right = np.nan)
+            #     amps = rca.get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel)
+            #     cols = rca.get_ray_color(phase,dist,time,dists,depths,ray_param)
+            #     # save paths
+            #     dists_collected.append(dists)
+            #     depths_collected.append(depths)
+            #     amps_collected.append(amps)
+            #     cols_collected.append(cols)
+
+            # Only show first arriving phases as plots look better
+            ray_param=rays[0].ray_param/(radius*1000) # convert to s/km from s/radian.
+            dists = np.interp(time, rays[0].path['time'], rays[0].path['dist'], left = np.nan, right = np.nan)
+            depths = np.interp(time, rays[0].path['time'], rays[0].path['depth'], left = np.nan, right = np.nan)
+            amps = rca.get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel)
+            cols = rca.get_ray_color(phase,dist,time,dists,depths,ray_param)
+            # save paths
+            dists_collected.append(dists)
+            depths_collected.append(depths)
+            amps_collected.append(amps)
+            cols_collected.append(cols)
+
         save_paths.append([np.array(dists_collected),np.array(depths_collected),np.array(amps_collected),np.array(cols_collected)])
     save_paths=np.array(save_paths)
     # print(np.shape(save_paths))
@@ -306,8 +317,8 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
         segs_r=np.concatenate([points_r[:-1], points_r[1:]], axis=1)
         segs_l=np.concatenate([points_l[:-1], points_l[1:]], axis=1)
 
-        lc_r=LineCollection(segs_r,linewidth=2, linestyle='solid', colors=rgba_colors)
-        lc_l=LineCollection(segs_l,linewidth=2, linestyle='solid', colors=rgba_colors)
+        lc_r=LineCollection(segs_r,linewidth=2.5, linestyle='solid', colors=rgba_colors)
+        lc_l=LineCollection(segs_l,linewidth=2.5, linestyle='solid', colors=rgba_colors)
 
         line = ax2.add_collection(lc_r)
         lines_right.append(line)
@@ -430,21 +441,18 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
     # Adds label for waiting arriving earthquakes waves....
     ax4.text(0, min_amp+0.05, 'Earthquake waves arriving', ha="left", va="bottom",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
 
-    # Set a dummy marker in place for the key phase labelling.
-    label_boxes=[]
-    key_phase_seis_time_end = int(Key_phase_width)
-    key_phase_seis_time_start = int(0)
+    # Set invisible text in place for the key phase labelling.
+    key_phase_seis_time_end = Key_phase_width
+    key_phase_seis_time_start = 0
+    key_phase_max_amp = np.max(np.abs(seis_data_new[len(time_buffer)+int(np.floor((key_phase_A_time/delta))):len(time_buffer)+int(np.floor((key_phase_A_time + Key_phase_width)/delta)):1]))
     
-    key_phase_max_amp = np.max(np.abs(seis_data_cut[::-1][key_phase_seis_time_start:key_phase_seis_time_end]))
-    
-    # rect = Rectangle((x , y), width, height)
-    rect = patches.Rectangle((key_phase_seis_time_start , -key_phase_max_amp), Key_phase_width, 2*key_phase_max_amp, facecolor=None,edgecolor=None,alpha=0)
-    # Create patch collection with specified colour/alpha
-    # pc = PatchCollection(rect, facecolor=None,edgecolor=None,alpha=0)
-
+    rect = patches.Rectangle((key_phase_seis_time_start , -key_phase_max_amp), Key_phase_width, 2*key_phase_max_amp, fill=False,edgecolor='b', alpha=1, visible=False)
     # Add collection to axes
     phase_box = ax4.add_patch(rect)
-    label_boxes.append(phase_box)
+
+    phase_label = ax4.text(key_phase_seis_time_end+0.05, key_phase_max_amp+0.05, 'Phase of interest!', ha="left",va="top",fontsize=14, color='black', visible=False) 
+    
+    
     
     #####################################################################
 
@@ -566,42 +574,24 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
         x_label_val = [ int(np.floor(i)) for i in seis_times_new[round((60+t)/delta):round((TW_duration/delta)+(t/delta))+1:round(60/delta)]/60 ][::-1]
         ax4.set_xticks(x_label_pos)
         ax4.set_xticklabels(x_label_val)
-        
-        # Jenny wanted to add a label for the phase we are interested in.
-        # want a red box and also a text label.
-        
-        # 
+
         if t >= np.floor(key_phase_A_time + Key_phase_width) and t < np.floor(key_phase_A_time + Key_phase_label_time):
-            # Remove phase box from previous step
-            try:
-                phase_box.remove()
-            except:
-                pass
-            try:
-                phase_label.remove()
-            except:
-                pass
-                
             # Here is where the magic happens
             
-            key_phase_seis_time_end = int(np.floor(t - key_phase_A_time))
-            key_phase_seis_time_start = int(np.floor(t - key_phase_A_time - Key_phase_width))
-            
-            key_phase_max_amp = np.max(np.abs(seis_data_cut[:][key_phase_seis_time_start:key_phase_seis_time_end]))
-            
-            phase_label = ax4.text(key_phase_seis_time_end+0.05, key_phase_max_amp+0.05, 'Phase of interest!', ha="left",va="bottom",fontsize=14, color='black') 
-            #, bbox=dict(facecolor=None, edgecolor=None, pad=1.0))
+            key_phase_seis_time_end = np.floor(t - key_phase_A_time)
+            key_phase_seis_time_start = np.floor(t - key_phase_A_time - Key_phase_width)
 
-            phase_box.set_xy((key_phase_seis_time_start , -key_phase_max_amp))
-            phase_box.set_edgecolor('b')
-            phase_box.set_height(2*key_phase_max_amp)
-            # phase_box.set_alpha(1.0)
+            phase_label.set_visible(True)
+            phase_label.set_x(key_phase_seis_time_end+0.05)
+            
+            phase_box.set_visible(True)
+            phase_box.set_x(key_phase_seis_time_start)
             
             
         elif t >= np.floor(key_phase_A_time + Key_phase_label_time):
             # want to remove the above features.
-            phase_box.remove()
-            phase_label.remove()
+            phase_label.set_visible(False)
+            phase_box.set_visible(False)
         
         # This part plots the time dependent appearance of labels and the lower image
         # Layer 1 text - left label
@@ -627,9 +617,9 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
                 axdi.imshow(di_figure, alpha=1)
         
         if mirror_key_rp:
-            return(line,lc_r,lc_l,eq_symbol,seismom_symbol,key_ray_path,key_ray_path_m,seis,drawing_tick,triangle_tick,rect,phase_box)
+            return(line,lc_r,lc_l,eq_symbol,seismom_symbol,key_ray_path,key_ray_path_m,seis,drawing_tick,triangle_tick,phase_box)
         else:
-            return(line,lc_r,lc_l,eq_symbol,seismom_symbol,key_ray_path,seis,drawing_tick,triangle_tick,rect,phase_box)
+            return(line,lc_r,lc_l,eq_symbol,seismom_symbol,key_ray_path,seis,drawing_tick,triangle_tick,phase_box)
             
     # Sets up animation
     animation = FuncAnimation(

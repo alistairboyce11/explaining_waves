@@ -19,8 +19,6 @@ from obspy.taup import plot_ray_paths
 model = TauPyModel(model='ak135')
 
 import math
-from pathlib import Path
-home = str(Path.home())
 
 # Function below used to define input phases.
 import phase_finder as pf
@@ -35,7 +33,7 @@ def get_vp_a(depth):
         vp_a=model.model.s_mod.v_mod.evaluate_above(depth,'p')
         return vp_a*1000
     else:
-        return 330
+        return 0
 
 def get_vp_b(depth):
     vp_b=model.model.s_mod.v_mod.evaluate_below(depth,'p')
@@ -57,7 +55,7 @@ def get_rho_a(depth):
         rho_a=model.model.s_mod.v_mod.evaluate_above(depth,'r')
         return rho_a*1000
     else:
-        return 0
+        return 0.0
     
 def get_rho_b(depth):
     rho_b=model.model.s_mod.v_mod.evaluate_below(depth,'r')
@@ -109,41 +107,40 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
     p=ray_param
     
     #####################################################################
-    
+
     if phase == 'PcP' or phase == 'ScS':
         # Check phase reaches CMB
-        if np.nanmax(depths) > disconts[1]-5:
-            # Need to find first time point where depth is > 2891.5 -5
-            ind_RT0=np.where(depths > disconts[1]-5)[0][0]
+        if np.nanmax(depths) > disconts[1]-7:
+            # Need to find first time point where depth is > 2891.5 -7 # Need to use 7 for some reason - sampling.
+            ind_RT0=np.where(depths > disconts[1]-7)[0][0]
+            
             # Do Zoeppritz calcualtions
             d0=disconts[1]
             layer1= [get_vp_a(d0), get_vs_a(d0), get_rho_a(d0)]
             layer2= [get_vp_b(d0), get_vs_b(d0), get_rho_b(d0)]
             Rmatrix_RT0 = zpc.zoeppritz(p,layer1,layer2)
-            
+
             if seis_channel == 'BXT':
                 R_RT0=np.abs(Rmatrix_RT0[1,1]) # This will be ScS on transverse
             elif seis_channel == 'BXR' or seis_channel == 'BXZ':
                 if phase == 'ScS':
                     R_RT0=np.abs(Rmatrix_RT0[0,0])  # This will be ScS on vertical
                 elif phase == 'PcP':
-                    # R_RT0=np.abs(Rmatrix_RT0[2,2]) # This will be PcP on vertical
-                    # Fix R_RT0 for PcP since zoeppritz is unstable
-                    R_RT0=0.2
-            # print(phase, dist, R_RT0)
+                    # Amplify R_RT0 for PcP since zoeppritz is R is v.low.
+                    R_RT0=4*np.abs(Rmatrix_RT0[2,2]) # This will be PcP on vertical
             RT_point_amps[ind_RT0:,0]=R_RT0
 
-    #####################################################################
-    
+    ####################################################################
+
     if phase == 'Pdiff' or phase == 'Sdiff':
         # Check phase reaches CMB
         if np.nanmax(depths) > disconts[1]-5:
             # Need to find first time point where depth is > 2891.5 -5
             ind_RT0=np.where(depths > disconts[1]-5)[0][0]
             # Fix R_RT0 for Xdiff since zoeppritz is unsuitable
-            R_RT0=0.2
+            R_RT0=0.6
             RT_point_amps[ind_RT0:,0]=R_RT0
-            
+
      #####################################################################
     if phase == 'PP' or phase == 'SS':
         # Check phase reaches bounce point
@@ -158,14 +155,14 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
             layer1= [get_vp_a(d0), get_vs_a(d0), get_rho_a(d0)]
             layer2= [get_vp_b(d0), get_vs_b(d0), get_rho_b(d0)]
             Rmatrix_RT0 = zpc.zoeppritz(p,layer1,layer2)
-
+            # Amplify R_RT0 for PP, SS since zoeppritz is R is v.low. -> val+ (2/3)*(1-val)
             if seis_channel == 'BXT':
-                R_RT0=np.abs(Rmatrix_RT0[4,4]) # This will be SS on transverse
+                R_RT0=np.abs(Rmatrix_RT0[4,4])  + (2/3)*(1-np.abs(Rmatrix_RT0[4,4]))       # This will be SS on transverse
             elif seis_channel == 'BXR' or seis_channel == 'BXZ':
                 if phase == 'SS':
-                    R_RT0=np.abs(Rmatrix_RT0[3,3])  # This will be SS on vertical
+                    R_RT0=np.abs(Rmatrix_RT0[3,3])  + (2/3)*(1-np.abs(Rmatrix_RT0[3,3]))   # This will be SS on vertical
                 elif phase == 'PP':
-                    R_RT0=np.abs(Rmatrix_RT0[5,5]) # This will be PP on vertical
+                    R_RT0=np.abs(Rmatrix_RT0[5,5])  + (2/3)*(1-np.abs(Rmatrix_RT0[5,5]))  # This will be PP on vertical
             # print(phase, dist, R_RT0)
             RT_point_amps[ind_RT0:,0]=R_RT0
 
@@ -175,13 +172,13 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
         if np.nanmax(depths) > disconts[1]-5:
             # The first value where depth is greater than CMB depth.
             ind_RT0=np.where(depths > disconts[1]-5)[0][0]
-            
+
             # Do Zoeppritz calcualtions
             d0=disconts[1]
             layer1= [get_vp_a(d0), get_vs_a(d0), get_rho_a(d0)]
             layer2= [get_vp_b(d0), get_vs_b(d0), get_rho_b(d0)]
             Rmatrix_RT0 = zpc.zoeppritz(p,layer1,layer2)
-            
+
             if seis_channel == 'BXT':
                 T_RT0=np.abs(Rmatrix_RT0[5,1]) # This will be SKS on transverse
             elif seis_channel == 'BXR' or seis_channel == 'BXZ':
@@ -191,19 +188,19 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
                     T_RT0=np.abs(Rmatrix_RT0[5,2]) # This will be PKP on vertical
             # print(phase, dist, T_RT0)
             RT_point_amps[ind_RT0:,0]=T_RT0
-            
+
             # Check upgoing phase reaches CMB
             if depths[-1] < disconts[1]-5 or math.isnan(depths[-1]):
                 # The last value where depth is less than CMB depth.
                 ind_RT1=np.where(depths > disconts[1]-5)[0][-1]
-                
-            
+
+
                 # Do Zoeppritz calcualtions
                 d1=disconts[1]
                 layer1= [get_vp_a(d1), get_vs_a(d1), get_rho_a(d1)]
                 layer2= [get_vp_b(d1), get_vs_b(d1), get_rho_b(d1)]
                 Rmatrix_RT1 = zpc.zoeppritz(p,layer1,layer2)
-                
+
                 if seis_channel == 'BXT':
                     T_RT1=np.abs(Rmatrix_RT1[1,5]) # This will be SKS on transverse
                 elif seis_channel == 'BXR' or seis_channel == 'BXZ':
@@ -212,20 +209,20 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
                     elif phase == 'PKP':
                         T_RT1=np.abs(Rmatrix_RT1[2,5]) # This will be PKP on vertical
                 RT_point_amps[ind_RT1:,1]=T_RT1
-                
+
     #####################################################################
     if phase == 'PKiKP' or phase == 'SKiKS':
         # Check downgoing phase reaches CMB
         if np.nanmax(depths) > disconts[1]-5:
             # The first value where depth is greater than CMB depth.
             ind_RT0=np.where(depths > disconts[1]-5)[0][0]
-            
+
             # Do Zoeppritz calcualtions
             d0=disconts[1]
             layer1= [get_vp_a(d0), get_vs_a(d0), get_rho_a(d0)]
             layer2= [get_vp_b(d0), get_vs_b(d0), get_rho_b(d0)]
             Rmatrix_RT0 = zpc.zoeppritz(p,layer1,layer2)
-            
+
             if seis_channel == 'BXT':
                 T_RT0=np.abs(Rmatrix_RT0[5,1]) # This will be SKiKS on transverse
             elif seis_channel == 'BXR' or seis_channel == 'BXZ':
@@ -239,27 +236,27 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
             # Check phase reaches bounce point
             if dists[-1] >= (dist/180*np.pi)/2 or math.isnan(dists[-1]):
                 ind_RT1=np.where(depths > disconts[2]-5)[0][0]
-
+                # Reflection at ICB is so low.. fix it.
                 # Do Zoeppritz calcualtions
-                d1=disconts[2]
-                layer1= [get_vp_a(d1), get_vs_a(d1), get_rho_a(d1)]
-                layer2= [get_vp_b(d1), get_vs_b(d1), get_rho_b(d1)]
-                Rmatrix_RT1 = zpc.zoeppritz(p,layer1,layer2)
-                
-                R_RT1=np.abs(Rmatrix_RT1[2,2]) # ICB reflection is the same for all phases.
-                RT_point_amps[ind_RT1:,1]=R_RT1
-                
+                # d1=disconts[2]
+                # layer1= [get_vp_a(d1), get_vs_a(d1), get_rho_a(d1)]
+                # layer2= [get_vp_b(d1), get_vs_b(d1), get_rho_b(d1)]
+                # Rmatrix_RT1 = zpc.zoeppritz(p,layer1,layer2)
+
+                # R_RT1=np.abs(Rmatrix_RT1[2,2]) # ICB reflection is the same for all phases.
+                RT_point_amps[ind_RT1:,1]=0.7 #R_RT1
+
                 # Check upgoing phase reaches CMB
                 if depths[-1] < disconts[1]-5 or math.isnan(depths[-1]):
                     # The last value where depth is less than CMB depth.
                     ind_RT2=np.where(depths > disconts[1]-5)[0][-1]
-                    
+
                     # Do Zoeppritz calcualtions
                     d2=disconts[1]
                     layer1= [get_vp_a(d2), get_vs_a(d2), get_rho_a(d2)]
                     layer2= [get_vp_b(d2), get_vs_b(d2), get_rho_b(d2)]
                     Rmatrix_RT2 = zpc.zoeppritz(p,layer1,layer2)
-                    
+
                     if seis_channel == 'BXT':
                         T_RT2=np.abs(Rmatrix_RT2[1,5]) # This will be SKiKS on transverse
                     elif seis_channel == 'BXR' or seis_channel == 'BXZ':
@@ -275,13 +272,13 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
         if np.nanmax(depths) > disconts[1]-5:
             # The first value where depth is greater than CMB depth.
             ind_RT0=np.where(depths > disconts[1]-5)[0][0]
-            
+
             # Do Zoeppritz calcualtions
             d0=disconts[1]
             layer1= [get_vp_a(d0), get_vs_a(d0), get_rho_a(d0)]
             layer2= [get_vp_b(d0), get_vs_b(d0), get_rho_b(d0)]
             Rmatrix_RT0 = zpc.zoeppritz(p,layer1,layer2)
-            
+
             if seis_channel == 'BXT':
                 T_RT0=np.abs(Rmatrix_RT0[5,1]) # This will be SKIKS on transverse
             elif seis_channel == 'BXR' or seis_channel == 'BXZ':
@@ -291,11 +288,11 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
                     T_RT0=np.abs(Rmatrix_RT0[5,2]) # This will be PKIKP on vertical
             # print(phase, dist, T_RT0)
             RT_point_amps[ind_RT0:,0]=T_RT0
-            
+
             # Check downgoing phase reaches ICB
             if np.nanmax(depths) > disconts[2]-5:
                 ind_RT1=np.where(depths > disconts[2]-5)[0][0]
-                
+
                 # Do Zoeppritz calcualtions
                 d1=disconts[1]
                 layer1= [get_vp_a(d1), get_vs_a(d1), get_rho_a(d1)]
@@ -304,31 +301,31 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
 
                 T_RT1=np.abs(Rmatrix_RT1[5,2]) # ICB downgoing transmission - same for all phases.
                 RT_point_amps[ind_RT1:,1]=T_RT1
-            
+
                 # Check upgoing phase reaches ICB
                 if depths[-1] < disconts[2]-5 or math.isnan(depths[-1]):
                     ind_RT2=np.where(depths > disconts[2]-5)[0][-1]
-            
+
                     # Do Zoeppritz calcualtions
                     d2=disconts[1]
                     layer1= [get_vp_a(d2), get_vs_a(d2), get_rho_a(d2)]
                     layer2= [get_vp_b(d2), get_vs_b(d2), get_rho_b(d2)]
                     Rmatrix_RT2 = zpc.zoeppritz(p,layer1,layer2)
-                    
+
                     T_RT2=np.abs(Rmatrix_RT2[2,5]) # ICB upgoing transmission - same for all phases.
                     RT_point_amps[ind_RT2:,2]=T_RT2
-            
+
                     # Check upgoing phase reaches CMB
                     if depths[-1] < disconts[1]-5 or math.isnan(depths[-1]):
                         # The last value where depth is greater than CMB depth.
                         ind_RT3=np.where(depths > disconts[1]-5)[0][-1]
-                        
+
                         # Do Zoeppritz calcualtions
                         d3=disconts[1]
                         layer1= [get_vp_a(d3), get_vs_a(d3), get_rho_a(d3)]
                         layer2= [get_vp_b(d3), get_vs_b(d3), get_rho_b(d3)]
                         Rmatrix_RT3 = zpc.zoeppritz(p,layer1,layer2)
-                        
+
                         if seis_channel == 'BXT':
                             T_RT3=np.abs(Rmatrix_RT3[1,5]) # This will be SKIKS on transverse
                         elif seis_channel == 'BXR' or seis_channel == 'BXZ':
@@ -344,13 +341,13 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
         if np.nanmax(depths) > disconts[1]-5:
             # The first value where depth is greater than CMB depth.
             ind_RT0=np.where(depths > disconts[1]-1)[0][0]
-            
+
             # Do Zoeppritz calcualtions
             d0=disconts[1]
             layer1= [get_vp_a(d0), get_vs_a(d0), get_rho_a(d0)]
             layer2= [get_vp_b(d0), get_vs_b(d0), get_rho_b(d0)]
             Rmatrix_RT0 = zpc.zoeppritz(p,layer1,layer2)
-            
+
             if seis_channel == 'BXT':
                 T_RT0=np.abs(Rmatrix_RT0[5,1]) # This will be SKKS on transverse
             elif seis_channel == 'BXR' or seis_channel == 'BXZ':
@@ -377,14 +374,14 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
                 except:
                     ind_RT1=len(RT_point_amps[:,1])
 
-                
-            
+
+
                 # Do Zoeppritz calcualtions
                 d1=disconts[1]
                 layer1= [get_vp_a(d1), get_vs_a(d1), get_rho_a(d1)]
                 layer2= [get_vp_b(d1), get_vs_b(d1), get_rho_b(d1)]
                 Rmatrix_RT1 = zpc.zoeppritz(p,layer1,layer2)
-                
+
                 R_RT1=np.abs(Rmatrix_RT1[5,5]) # The upgoing CMB reflection - same for all phases.
                 RT_point_amps[ind_RT1:,1]=R_RT1
 
@@ -392,13 +389,13 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
                 if depths[-1] < disconts[1]-5 or math.isnan(depths[-1]):
                     # The last value where depth is greater than CMB depth.
                     ind_RT2=np.where(depths > disconts[1]-5)[0][-1]
-                    
+
                     # Do Zoeppritz calcualtions
                     d2=disconts[1]
                     layer1= [get_vp_a(d2), get_vs_a(d2), get_rho_a(d2)]
                     layer2= [get_vp_b(d2), get_vs_b(d2), get_rho_b(d2)]
                     Rmatrix_RT2 = zpc.zoeppritz(p,layer1,layer2)
-                    
+
                     if seis_channel == 'BXT':
                         T_RT2=np.abs(Rmatrix_RT2[1,5]) # This will be SKKS on transverse
                     elif seis_channel == 'BXR' or seis_channel == 'BXZ':
@@ -408,11 +405,11 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
                             T_RT2=np.abs(Rmatrix_RT2[2,5]) # This will be PKKP on vertical
                     RT_point_amps[ind_RT2:,2]=T_RT2
 
-    
-    
+
+
     # Want to multiply all the RT amplitude array segments together.
     RT_amps=np.ones(np.shape(RT_point_amps)[0])
-    for i in range(np.shape(RT_point_amps)[1]): 
+    for i in range(np.shape(RT_point_amps)[1]):
         RT_amps=RT_amps*RT_point_amps[:,i]
     
     amps = i_atten * RT_amps
@@ -423,7 +420,7 @@ def get_ray_atten(phase,dist,time,dists,depths,ray_param,seis_channel):
 
     #
     # 'P', 'PcP', 'PP', 'PKP', 'PKiKP', 'PKIKP','PKKP',  'Pdiff'
-    # 'S', 'ScS', 'SS', 'SKS', 'SKiKS', 'SKIKS','SKKS',  'Sdiff'
+    # 'S', 'ScS', 'SS', 'Sdiff'
     #
 
     # Phase types: direct, topside OC-ref, underside SF-ref, OC-P, underside OC-ref, topside IC-ref, IC-P, IC-S

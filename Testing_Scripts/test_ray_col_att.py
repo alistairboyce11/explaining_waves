@@ -105,7 +105,7 @@ lines_right=[]
 
 intp = matplotlib.cbook.simple_linear_interpolation
 
-fig,ax0,axgl,axgm,axgr,axll,axlr,axdi,di_figure,ax1,ax2,ax3,ax4 = spa.setup_plot(title='title',load_image=[],plot_width=16,plot_height=10, epi_dist=epi_dist, depth_earthquake=depth_earthquake, polar_plot_offset=theta_earthquake, radius=radius, mirror_key_rp=False)
+fig,ax0,axgl,axgm,axgr,axll,axlr,axdi,di_figure,ax1,ax2,ax3,ax4 = spa.setup_plot(title='title',load_image=[],image_loc='../../wavefront_movie_images/', background_image_loc='../../wavefront_movie_home_screen/', plot_width=16,plot_height=10, epi_dist=epi_dist, depth_earthquake=depth_earthquake, polar_plot_offset=theta_earthquake, radius=radius, mirror_key_rp=False)
 
 plt.sca(ax2)
 for p in range(len(save_paths)):

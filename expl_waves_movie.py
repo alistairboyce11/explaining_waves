@@ -89,7 +89,7 @@ matplotlib.rc('animation', html='html5')
 
 import matplotlib.pylab as pylab
 params = {'legend.fontsize': 'x-large',
-          'figure.figsize': (16, 10),
+          'figure.figsize': (12.8, 7.2),
          'xtick.labelsize':'16',
          'ytick.labelsize':'16'}
 pylab.rcParams.update(params)
@@ -282,7 +282,7 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
     # ##################### SET UP THE PLOTTING AREA HERE #######################
 
     # Use this function to setup the intial plot area!
-    fig,ax0,axgl,axgm,axgr,axll,axlr,axdi,di_figure,ax1,ax2,ax3,ax4 = spa.setup_plot(title=title,load_image=load_image,plot_width=16,plot_height=10, epi_dist=epi_dist, depth_earthquake=depth_earthquake, polar_plot_offset=theta_earthquake, radius=radius, mirror_key_rp=mirror_key_rp)
+    fig,ax0,axgl,axgm,axgr,axll,axlr,axdi,di_figure,ax1,ax2,ax3,ax4 = spa.setup_plot(title=title,load_image=load_image,plot_width=12.8,plot_height=7.2, epi_dist=epi_dist, depth_earthquake=depth_earthquake, polar_plot_offset=theta_earthquake, radius=radius, mirror_key_rp=mirror_key_rp)
 
     # ##########################################################################
     # set polar subplot as current axes
@@ -446,11 +446,11 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
     key_phase_seis_time_start = 0
     key_phase_max_amp = np.max(np.abs(seis_data_new[len(time_buffer)+int(np.floor((key_phase_A_time/delta))):len(time_buffer)+int(np.floor((key_phase_A_time + Key_phase_width)/delta)):1]))
     
-    rect = patches.Rectangle((key_phase_seis_time_start , -key_phase_max_amp), Key_phase_width, 2*key_phase_max_amp, fill=False,edgecolor='b', alpha=1, visible=False)
+    rect = patches.Rectangle((key_phase_seis_time_start , -key_phase_max_amp-0.05), Key_phase_width, 2*(key_phase_max_amp+0.05), fill=False,edgecolor='b', alpha=1, visible=False)
     # Add collection to axes
     phase_box = ax4.add_patch(rect)
 
-    phase_label = ax4.text(key_phase_seis_time_end+0.05, key_phase_max_amp+0.05, 'Wave of interest!', ha="left",va="top",fontsize=14, color='black', visible=False) 
+    phase_label = ax4.text(key_phase_seis_time_end+0.05, key_phase_max_amp+0.08, 'Wave of interest!', ha="left",va="top",fontsize=14, color='black', visible=False, clip_on=True) 
     
 
     plt.sca(axll)
@@ -644,7 +644,7 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
                               # Vector containing frame numbers
                               # frames,
                               # Frame information - generator function
-                              frames=gen_function(),
+                              frames=100, #gen_function(),
                               # Extra arguments to the animate function
                               fargs=[lines_left, lines_right],
                               # The number of values from frames to cache:

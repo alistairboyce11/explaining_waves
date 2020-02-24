@@ -27,12 +27,12 @@ import os.path
 
 import matplotlib.pylab as pylab
 params = {'legend.fontsize': 'x-large',
-          'figure.figsize': (16, 10),
+          'figure.figsize': (12.8, 7.2),
          'xtick.labelsize':'16',
          'ytick.labelsize':'16'}
 pylab.rcParams.update(params)
 
-def setup_plot(title='', load_image='', plot_width=16, plot_height=10, epi_dist=30, depth_earthquake = 0, polar_plot_offset=0, radius=6371, mirror_key_rp=False):
+def setup_plot(title='', load_image='', image_loc='../wavefront_movie_images/', background_image_loc='../wavefront_movie_home_screen/', plot_width=12.8, plot_height=7.2, epi_dist=30, depth_earthquake = 0, polar_plot_offset=0, radius=6371, mirror_key_rp=False):
     
     fig = plt.figure(figsize =(plot_width,plot_height))
     if len(title) > 0:
@@ -75,7 +75,7 @@ def setup_plot(title='', load_image='', plot_width=16, plot_height=10, epi_dist=
     
     # Load the image that is going in the small axes at the bottom of the plot - usually a png
     if len(load_image) > 0:
-        di_loc = '../wavefront_movie_images/' + load_image
+        di_loc = image_loc + load_image
         di_figure = plt.imread(di_loc)
     else:
         di_figure=np.array([])
@@ -87,7 +87,7 @@ def setup_plot(title='', load_image='', plot_width=16, plot_height=10, epi_dist=
     # # ax1.text(0.01, 0.95, "ax1", size=12) # Add some labels if you wish
     ax1.set_xticks([])
     ax1.set_yticks([])
-    im = '../wavefront_movie_home_screen/Interior_XC_clip_square.png'
+    im = background_image_loc+'Interior_XC_clip_square.png'
     background_figure = plt.imread(im)
     ax1.imshow(background_figure, alpha=1)
 
@@ -152,7 +152,7 @@ def setup_plot(title='', load_image='', plot_width=16, plot_height=10, epi_dist=
     
     if mirror_key_rp:
 
-        # define overlying polar plot that will hold the wavefronts
+        # define overlying polar plot that will hold the shadow zone markers
         ax3 = fig.add_axes([0.05, 0.25, 0.45, 0.7], projection=None, polar=True, facecolor='green',frame_on=False)
         ax3.set_theta_zero_location('N', offset=polar_plot_offset)
         ax3.set_theta_direction(-1)

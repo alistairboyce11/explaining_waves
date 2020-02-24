@@ -22,7 +22,7 @@ home = str(Path.home())
 
 import matplotlib.pylab as pylab
 params = {'legend.fontsize': 'x-large',
-          'figure.figsize': (16, 10),
+          'figure.figsize': (12.8, 7.2),
          'xtick.labelsize':'16',
          'ytick.labelsize':'16'}
 pylab.rcParams.update(params)
@@ -84,12 +84,12 @@ LR_L2_text=''
 
 
 
-load_image='Lehmann.png'
+load_image='Oldham.png'
 
 # ##################### SET UP THE PLOTTING AREA HERE #######################
 
 # Use this function to setup the intial plto area!
-fig,ax0,axgl,axgm,axgr,axll,axlr,axdi,di_figure,ax1,ax2,ax3,ax4 = spa.setup_plot(title=title,load_image=load_image,plot_width=8,plot_height=5, epi_dist=epi_dist, depth_earthquake=depth_earthquake, polar_plot_offset=theta_earthquake, radius=radius, mirror_key_rp=True)
+fig,ax0,axgl,axgm,axgr,axll,axlr,axdi,di_figure,ax1,ax2,ax3,ax4 = spa.setup_plot(title=title,load_image=load_image,image_loc='../../wavefront_movie_images/', background_image_loc='../../wavefront_movie_home_screen/',plot_width=8,plot_height=5, epi_dist=epi_dist, depth_earthquake=depth_earthquake, polar_plot_offset=theta_earthquake, radius=radius, mirror_key_rp=True)
 
 ######################## Additions to plot ax2 - wavefronts #################
 # set polar subplot as current axes
@@ -161,16 +161,16 @@ ax4.text(0, min_amp+0.05, 'Earthquake waves arriving '+str(waiting), ha="left", 
 
 if len(LL_L1_text) > 0:
     # Layer 1 text - left label
-    axll.text(0.5, 0.7, LL_L1_text, ha="center", va="center",fontsize=8, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
+    axll.text(0.5, 0.6, LL_L1_text, ha="center", va="center",fontsize=8, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
 if len(LL_L2_text) > 0:
     # Layer 2 text - left label
-    axll.text(0.5, 0.2, LL_L2_text, ha="center", va="center",fontsize=7, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
+    axll.text(0.5, 0.1, LL_L2_text, ha="center", va="center",fontsize=7, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
 if len(LR_L1_text) > 0:
     # Layer 1 text - right label
-    axlr.text(0.5, 0.7, LR_L1_text, ha="center", va="center",fontsize=8, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0)) # Add some labels if you wish
+    axlr.text(0.5, 0.6, LR_L1_text, ha="center", va="center",fontsize=8, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0)) # Add some labels if you wish
 if len(LR_L2_text) > 0:
     # Layer 2 text - right label
-    axlr.text(0.5, 0.2, LR_L2_text, ha="center", va="center",fontsize=7, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0)) # Add some labels if you wish
+    axlr.text(0.5, 0.1, LR_L2_text, ha="center", va="center",fontsize=7, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0)) # Add some labels if you wish
 
 # Plot descriptive image (di) between the labels.
 if len(di_figure) > 0:

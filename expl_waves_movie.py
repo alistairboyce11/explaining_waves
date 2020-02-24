@@ -89,7 +89,7 @@ matplotlib.rc('animation', html='html5')
 
 import matplotlib.pylab as pylab
 params = {'legend.fontsize': 'x-large',
-          'figure.figsize': (16, 10),
+          'figure.figsize': (12.8, 7.2),
          'xtick.labelsize':'16',
          'ytick.labelsize':'16'}
 pylab.rcParams.update(params)
@@ -282,7 +282,7 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
     # ##################### SET UP THE PLOTTING AREA HERE #######################
 
     # Use this function to setup the intial plot area!
-    fig,ax0,axgl,axgm,axgr,axll,axlr,axdi,di_figure,ax1,ax2,ax3,ax4 = spa.setup_plot(title=title,load_image=load_image,plot_width=16,plot_height=10, epi_dist=epi_dist, depth_earthquake=depth_earthquake, polar_plot_offset=theta_earthquake, radius=radius, mirror_key_rp=mirror_key_rp)
+    fig,ax0,axgl,axgm,axgr,axll,axlr,axdi,di_figure,ax1,ax2,ax3,ax4 = spa.setup_plot(title=title,load_image=load_image,plot_width=12.8,plot_height=7.2, epi_dist=epi_dist, depth_earthquake=depth_earthquake, polar_plot_offset=theta_earthquake, radius=radius, mirror_key_rp=mirror_key_rp)
 
     # ##########################################################################
     # set polar subplot as current axes
@@ -435,24 +435,31 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
     seis, = ax4.plot(seis_plot_time, seis_data_cut[::-1],'r-', linewidth=1)
 
     # Adds timing counter
-    ax4.text(TW_duration-(TW_duration/40), max_amp-0.05, 'Minutes after Earthquake: '+str(int(np.floor(iter))), ha="right", va="top",
+    timing_counter = ax4.text(TW_duration-(TW_duration/40), max_amp-0.05, 'Minutes after Earthquake: '+str(int(np.floor(iter))), ha="right", va="top",
                             fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='grey', pad=5.0))
 
     # Adds label for waiting arriving earthquakes waves....
-    ax4.text(0, min_amp+0.05, 'Earthquake waves arriving', ha="left", va="bottom",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
+    waves_arriving_label = ax4.text(0, min_amp+0.05, 'Waves arriving ', ha="left", va="bottom",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
 
     # Set invisible text in place for the key phase labelling.
     key_phase_seis_time_end = Key_phase_width
     key_phase_seis_time_start = 0
     key_phase_max_amp = np.max(np.abs(seis_data_new[len(time_buffer)+int(np.floor((key_phase_A_time/delta))):len(time_buffer)+int(np.floor((key_phase_A_time + Key_phase_width)/delta)):1]))
     
-    rect = patches.Rectangle((key_phase_seis_time_start , -key_phase_max_amp), Key_phase_width, 2*key_phase_max_amp, fill=False,edgecolor='b', alpha=1, visible=False)
+    rect = patches.Rectangle((key_phase_seis_time_start , -key_phase_max_amp-0.05), Key_phase_width, 2*(key_phase_max_amp+0.05), fill=False,edgecolor='b', alpha=1, visible=False)
     # Add collection to axes
     phase_box = ax4.add_patch(rect)
 
-    phase_label = ax4.text(key_phase_seis_time_end+0.05, key_phase_max_amp+0.05, 'Phase of interest!', ha="left",va="top",fontsize=14, color='black', visible=False) 
+    phase_label = ax4.text(key_phase_seis_time_end+0.05, key_phase_max_amp+0.08, 'Wave of interest!', ha="left",va="top",fontsize=14, color='black', visible=False, clip_on=True) 
     
+
+    plt.sca(axll)
+    LL_L1_text_label = axll.text(0.5, 0.6, LL_L1_text, ha="center", va="center",fontsize=16, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0), visible=False)
+    LL_L2_text_label = axll.text(0.5, 0.1, LL_L2_text, ha="center", va="center",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0), visible=False)
     
+    plt.sca(axlr)
+    LR_L1_text_label = axlr.text(0.5, 0.6, LR_L1_text, ha="center", va="center",fontsize=16, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0), visible=False)
+    LR_L2_text_label = axlr.text(0.5, 0.1, LR_L2_text, ha="center", va="center",fontsize=14, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0), visible=False)
     
     #####################################################################
 
@@ -551,9 +558,9 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
         triangle_tick.set_data(-5, seis_data_cut[-1])
 
         # Adds timing counter
-        ax4.text(TW_duration-(TW_duration/40), max_amp-0.05, 'Minutes after Earthquake: '+str(int(np.floor(t/60))), ha="right", va="top",
-                                fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='grey', pad=5.0))
-
+        # ax4.text(TW_duration-(TW_duration/40), max_amp-0.05, 'Minutes after Earthquake: '+str(int(np.floor(t/60))), ha="right", va="top", fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='grey', pad=5.0))
+        timing_counter.set_text('Minutes after Earthquake: '+str(int(np.floor(iter))))
+        
         # Adds label for waiting arriving earthquakes waves....
         if t < F_A_time:
             # Must use bbox to plot so that it overwrites previous text.
@@ -564,9 +571,12 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
             waiting_gap=wait_space*rem_diff
             wait_point='.'
             waiting=wait_rem*wait_point
-            ax4.text(0, min_amp+0.05, 'Earthquake waves arriving '+str(waiting)+str(waiting_gap), ha="left", va="bottom",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
+            waves_arriving_label.set_text('Waves arriving '+str(waiting)+str(waiting_gap))
+            # ax4.text(0, min_amp+0.05, 'Waves arriving '+str(waiting)+str(waiting_gap), ha="left", va="bottom",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
         else:
-            ax4.text(0, min_amp+0.05, 'Waves arrived!                               ', ha="left", va="bottom",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
+            waves_arriving_label.set_text('Waves arrived!                      ')
+            # ax4.text(0, min_amp+0.05, 'Waves arrived!                      ', ha="left", va="bottom",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
+            # waves_arriving_label = ax4.text(0, min_amp+0.05, 'Waves arriving ', ha="left", va="bottom",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
 
         # Dynamic x-tick labelling.
         ax4.set_xlabel('Time after Earthquake (min)', fontsize=14)
@@ -575,7 +585,7 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
         ax4.set_xticks(x_label_pos)
         ax4.set_xticklabels(x_label_val)
 
-        if t >= np.floor(key_phase_A_time + Key_phase_width) and t < np.floor(key_phase_A_time + Key_phase_label_time):
+        if t >= np.floor(key_phase_A_time + Key_phase_width): # and t < np.floor(key_phase_A_time + Key_phase_label_time):
             # Here is where the magic happens
             
             key_phase_seis_time_end = np.floor(t - key_phase_A_time)
@@ -588,28 +598,32 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
             phase_box.set_x(key_phase_seis_time_start)
             
             
-        elif t >= np.floor(key_phase_A_time + Key_phase_label_time):
-            # want to remove the above features.
-            phase_label.set_visible(False)
-            phase_box.set_visible(False)
+        # elif t >= np.floor(key_phase_A_time + Key_phase_label_time):
+        #     # want to remove the above features.
+        #     phase_label.set_visible(False)
+        #     phase_box.set_visible(False)
         
         # This part plots the time dependent appearance of labels and the lower image
         # Layer 1 text - left label
         if len(LL_L1_text) > 0: 
             if t >= LL_L1_time*np.floor(F_A_time)-2:
-                axll.text(0.5, 0.5, LL_L1_text, ha="center", va="center",fontsize=16, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
+                LL_L1_text_label.set_visible(True)
+                # LL_L1_text_label = axll.text(0.5, 0.6, LL_L1_text, ha="center", va="center",fontsize=16, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
         # Layer 2 text - left label
         if len(LL_L2_text) > 0: 
             if t >= LL_L2_time*np.floor(F_A_time)-2:
-                axll.text(0.5, 0.0, LL_L2_text, ha="center", va="center",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
+                LL_L2_text_label.set_visible(True)
+                # LL_L2_text_label = axll.text(0.5, 0.1, LL_L2_text, ha="center", va="center",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
         # Layer 1 text - right label
         if len(LR_L1_text) > 0: 
             if t >= LR_L1_time*np.floor(F_A_time)-2:
-                axlr.text(0.5, 0.5, LR_L1_text, ha="center", va="center",fontsize=16, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0)) # Add some labels if you wish
+                LR_L1_text_label.set_visible(True)
+                # LR_L1_text_label = axlr.text(0.5, 0.6, LR_L1_text, ha="center", va="center",fontsize=16, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0))
         # Layer 2 text - right label
         if len(LR_L2_text) > 0: 
             if t >= LR_L2_time*np.floor(F_A_time)-2:
-                axlr.text(0.5, 0.0, LR_L2_text, ha="center", va="center",fontsize=14, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0)) # Add some labels if you wish
+                LR_L2_text_label.set_visible(True)
+                # LR_L2_text_label = axlr.text(0.5, 0.1, LR_L2_text, ha="center", va="center",fontsize=14, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0))
 
         # Plot descriptive image (di) between the labels.
         if len(di_figure) > 0: 
@@ -630,7 +644,7 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
                               # Vector containing frame numbers
                               # frames,
                               # Frame information - generator function
-                              frames=gen_function(),
+                              frames=100, #gen_function(),
                               # Extra arguments to the animate function
                               fargs=[lines_left, lines_right],
                               # The number of values from frames to cache:

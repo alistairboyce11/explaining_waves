@@ -644,7 +644,7 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
                               # Vector containing frame numbers
                               # frames,
                               # Frame information - generator function
-                              frames=100, #gen_function(),
+                              frames=gen_function(),
                               # Extra arguments to the animate function
                               fargs=[lines_left, lines_right],
                               # The number of values from frames to cache:

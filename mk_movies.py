@@ -57,11 +57,6 @@ import os.path
 import expl_waves_movie as ewm
 
 
-
-# Other testing runs
-
-# Corrected labels
-
 # P-wave imaging
 ewm.mk_mov(epi_dist=70, theta_earthquake=50, depth_earthquake=0, propagation_time=1200, seis_channel='BXZ', filter_params=[0.4, 2.0],
             extra_phases=['PP', 'SS'], overwrite_phase_defaults=False, phases_to_plot=['P', 'PcP', 'PKP', 'PKiKP', 'PP', 'PKIKP'], key_phase=['P'], mirror_key_rp=False,
@@ -78,9 +73,9 @@ ewm.mk_mov(epi_dist=60, theta_earthquake=-32, depth_earthquake=0, propagation_ti
             extra_phases=['PP', 'SS'], overwrite_phase_defaults=False, phases_to_plot=['S', 'ScS', 'SS'], key_phase=['ScS'], mirror_key_rp=False,
             output_location='../wavefront_movie_outputs/', mov_name_str='ScS_CMB', title='Investigating the Core-Mantle Boundary', load_image='Cartoons/Jenny_from_group_name.png',
             LL_L1_text='S-waves are one type of wave that travel\n outwards in all directions from an earthquake',
-            LL_L2_text='They bounce off the core-mantle boundary,\n and are sensitive to the structure in the deep mantle',
+            LL_L2_text='They bounce off the core-mantle boundary,\n and are sensitive to the structure\n in the deep mantle',
             LR_L1_text='\"I look for these core-bouncing waves\n in the seismogram\"',
-            LR_L2_text='\"I use the shape of the waves to investigate\n deep mysterious structures like mantle plume anchors\"',
+            LR_L2_text='\"I use the shape of the waves to investigate\n deep mysterious structures\n like mantle plume anchors\"',
             LL_L1_time=0.5, LL_L2_time=0.75, LR_L1_time=1.1, LR_L2_time=1.2,
             mov_pause_times=[], mov_fps=45, mov_dpi=150)
 
@@ -88,11 +83,11 @@ ewm.mk_mov(epi_dist=60, theta_earthquake=-32, depth_earthquake=0, propagation_ti
 ewm.mk_mov(epi_dist=145, theta_earthquake=-18, depth_earthquake=0, propagation_time=1400, seis_channel='BXZ', filter_params=[],
             extra_phases=['PP', 'SS'], overwrite_phase_defaults=False, phases_to_plot=['P', 'PcP', 'PP', 'Pdiff', 'PKP', 'PKIKP', 'PKiKP'], key_phase=['Pdiff'],  mirror_key_rp=False,
             output_location='../wavefront_movie_outputs/', mov_name_str='Core_Diff', title='Diffracted waves', load_image='Cartoons/Zhi_from_group_name.png',
-            LL_L1_text='Some S-wave energy leaves the earthquake\n and arrives at the core at a special angle',
+            LL_L1_text='Some energy leaves the earthquake\n and arrives at the core at a special angle',
             LL_L2_text='At this specific angle the wave \'hugs\' the\n edge of the core - this is called wave diffraction',
             LR_L1_text='\"I search for core \'hugging\' waves\n in the seismogram\"',
             LR_L2_text='\"I locate the mantle plume anchors that cause\n these waves to arrive from unexpected directions\"',
-            LL_L1_time=0.5, LL_L2_time=0.75, LR_L1_time=1.15, LR_L2_time=1.3,
+            LL_L1_time=0.4, LL_L2_time=0.6, LR_L1_time=1.0, LR_L2_time=1.1,
             mov_pause_times=[], mov_fps=45, mov_dpi=150)
 #
 ### Liquid Outer Core
@@ -101,9 +96,9 @@ ewm.mk_mov(epi_dist=100, theta_earthquake=0, depth_earthquake=0, propagation_tim
             phases_to_plot=['P', 'PP', 'PcP', 'PKP', 'Pdiff', 'PKIKP', 'PKiKP', 'S', 'ScS', 'SS'], key_phase=['S'],  mirror_key_rp=True,
             output_location='../wavefront_movie_outputs/', mov_name_str='Disc_OC', title='Discovery of the liquid outer core', load_image='Oldham.png',
             LL_L1_text='S or transverse waves can only travel\n through a solid and not a liquid',
-            LL_L2_text='In 1906, British geologist Richard Oldham\n first noticed that there were no S waves\n beyond a certain distance from earthquakes\n – called a \'shadow zone\'',
-            LR_L1_text='This was the first clue to the\n existence of a liquid core!',
-            LR_L2_text='',
+            LL_L2_text='In 1906, British geologist Richard Oldham\n first noticed that there were no S waves\n beyond a certain distance from earthquakes',
+            LR_L1_text='This is called a \'shadow zone\'',
+            LR_L2_text='This was the first clue to the\n existence of a liquid core!',
             LL_L1_time=0.5, LL_L2_time=0.75, LR_L1_time=1.1, LR_L2_time=1.2,
             mov_pause_times=[], mov_fps=45, mov_dpi=150)
 
@@ -115,7 +110,7 @@ ewm.mk_mov(epi_dist=120, theta_earthquake=10, depth_earthquake=0, propagation_ti
             LL_L2_text='In the 1930s Danish scientist Inge Lehmann\n first recorded an unexpected P-wave arrival\n that came from the inner-core boundary',
             LR_L1_text='She argued the core might be\n changing from a liquid to a solid\n close to the centre of the Earth!',
             LR_L2_text='',
-            LL_L1_time=0.5, LL_L2_time=0.75, LR_L1_time=1.1, LR_L2_time=1.2,
+            LL_L1_time=0.4, LL_L2_time=0.6, LR_L1_time=1.1, LR_L2_time=1.2,
             mov_pause_times=[], mov_fps=45, mov_dpi=150)
 
 ### Full wavefield
@@ -127,7 +122,7 @@ ewm.mk_mov(epi_dist=179, theta_earthquake=78, depth_earthquake=0, propagation_ti
             LL_L2_text='The faster traveling P waves take only 20 minutes\n to travel to the opposite side of the Earth!',
             LR_L1_text='Sensitive instruments called seismometers\n are used to measure the shaking of the ground\n caused by the earthquake waves at the surface',
             LR_L2_text='Waves lose lots of energy as they travel,\n so when they return to the surface\n the movements they cause are less than a millimeter!',
-            LL_L1_time=0.5, LL_L2_time=0.75, LR_L1_time=1.1, LR_L2_time=1.2,
+            LL_L1_time=0.3, LL_L2_time=0.6, LR_L1_time=1.1, LR_L2_time=1.2,
             mov_pause_times=[], mov_fps=45, mov_dpi=150)
 
 

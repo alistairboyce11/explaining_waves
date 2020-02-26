@@ -26,10 +26,10 @@ matplotlib.rc('animation', html='html5')
 import os.path
 
 import matplotlib.pylab as pylab
-params = {'legend.fontsize': 'x-large',
+params = {'legend.fontsize': 'large',
           'figure.figsize': (12.8, 7.2),
-         'xtick.labelsize':'16',
-         'ytick.labelsize':'16'}
+         'xtick.labelsize':'14',
+         'ytick.labelsize':'14'}
 pylab.rcParams.update(params)
 
 def setup_plot(title='', load_image='', image_loc='../wavefront_movie_images/', background_image_loc='../wavefront_movie_home_screen/', plot_width=12.8, plot_height=7.2, epi_dist=30, depth_earthquake = 0, polar_plot_offset=0, radius=6371, mirror_key_rp=False):
@@ -60,11 +60,9 @@ def setup_plot(title='', load_image='', image_loc='../wavefront_movie_images/', 
     # Plot axes for labels below plots.
     axll = fig.add_axes([0.10, 0.05, 0.35, 0.15], projection=None, polar=False, facecolor='blue',frame_on=False)
      # Add some labels if you wish
-    # axll.text(0.5, 0.5, 'Label for waves', ha="center", va="center",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
     axll.set_xticks([])
     axll.set_yticks([])
     axlr = fig.add_axes([0.55, 0.05, 0.35, 0.15], projection=None, polar=False, facecolor='blue',frame_on=False)
-    # axlr.text(0.5, 0.5, 'Label for seismogram', ha="center", va="center",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0)) # Add some labels if you wish
     axlr.set_xticks([])
     axlr.set_yticks([])
     
@@ -117,7 +115,7 @@ def setup_plot(title='', load_image='', image_loc='../wavefront_movie_images/', 
                  xytext=offset_text, # distance from text to points (x,y)
                  ha=horiz_a,
                  va='bottom',
-                 fontsize=14) # horizontal alignment can be left, right or center
+                 fontsize=12) # horizontal alignment can be left, right or center
 
     # Bunch of if statements to get the alignment of Seismometer label correct:
     if mirror_key_rp:
@@ -148,7 +146,7 @@ def setup_plot(title='', load_image='', image_loc='../wavefront_movie_images/', 
                  xytext=offset_text, # distance from text to points (x,y)
                  ha=horiz_a,
                  va=vert_a,
-                 fontsize=14) # horizontal alignment can be left, right or center
+                 fontsize=12) # horizontal alignment can be left, right or center
     
     if mirror_key_rp:
 
@@ -178,7 +176,7 @@ def setup_plot(title='', load_image='', image_loc='../wavefront_movie_images/', 
                      xytext=(0,-5), # distance from text to points (x,y)
                      ha='center',
                      va='top',
-                     fontsize=14) # horizontal alignment can be left, right or center
+                     fontsize=12) # horizontal alignment can be left, right or center
         
         ax3.set_rmax(1.0)
         ax3.set_rmin(0.0)

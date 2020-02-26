@@ -88,10 +88,10 @@ from IPython.display import HTML, Image
 matplotlib.rc('animation', html='html5')
 
 import matplotlib.pylab as pylab
-params = {'legend.fontsize': 'x-large',
+params = {'legend.fontsize': 'large',
           'figure.figsize': (12.8, 7.2),
-         'xtick.labelsize':'16',
-         'ytick.labelsize':'16'}
+         'xtick.labelsize':'14',
+         'ytick.labelsize':'14'}
 pylab.rcParams.update(params)
 
 
@@ -401,7 +401,7 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
     ax4.set_yticks([])                                               # Hides y-axis labels
 
     # Static minute labelling of x-ticks
-    # ax4.set_xlabel('Time before present (min)', fontsize=10)
+    # ax4.set_xlabel('Time before present (min)', fontsize=12)
     # ax4.set_xticks(seis_plot_time[0::60/delta])
     # ax4.set_xticklabels([int(i) for i in seis_plot_time[0::60/delta]/60 ] )
 
@@ -412,7 +412,7 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
     # These will need to be in the animate function.
 
     # Dynamic x-tick labelling.
-    ax4.set_xlabel('Time after Earthquake (min)', fontsize=14)
+    ax4.set_xlabel('Time after Earthquake (min)', fontsize=12)
     x_label_pos = seis_plot_time[round((divmod(iter,60)[1])/delta)::round(60/delta)]
     x_label_val = [ int(np.floor(i)) for i in seis_times_new[round((60+iter)/delta):round((TW_duration/delta)+(iter/delta))+1:round(60/delta)]/60 ][::-1]
     ax4.set_xticks(x_label_pos)
@@ -436,10 +436,10 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
 
     # Adds timing counter
     timing_counter = ax4.text(TW_duration-(TW_duration/40), max_amp-0.05, 'Minutes after Earthquake: '+str(int(np.floor(iter))), ha="right", va="top",
-                            fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='grey', pad=5.0))
+                            fontsize=12, color='black', bbox=dict(facecolor='white', edgecolor='grey', pad=5.0))
 
     # Adds label for waiting arriving earthquakes waves....
-    waves_arriving_label = ax4.text(0, min_amp+0.05, 'Waves arriving ', ha="left", va="bottom",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
+    waves_arriving_label = ax4.text(0, min_amp+0.05, 'Waves arriving ', ha="left", va="bottom",fontsize=12, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
 
     # Set invisible text in place for the key phase labelling.
     key_phase_seis_time_end = Key_phase_width
@@ -450,16 +450,15 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
     # Add collection to axes
     phase_box = ax4.add_patch(rect)
 
-    phase_label = ax4.text(key_phase_seis_time_end+0.05, key_phase_max_amp+0.08, 'Wave of interest!', ha="left",va="top",fontsize=14, color='black', visible=False, clip_on=True) 
-    
+    phase_label = ax4.text(key_phase_seis_time_end+0.05, key_phase_max_amp+0.08, 'Wave of interest!', ha="left",va="top",fontsize=12, color='black', visible=False, clip_on=True) 
 
     plt.sca(axll)
-    LL_L1_text_label = axll.text(0.5, 0.6, LL_L1_text, ha="center", va="center",fontsize=16, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0), visible=False)
-    LL_L2_text_label = axll.text(0.5, 0.1, LL_L2_text, ha="center", va="center",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0), visible=False)
+    LL_L1_text_label = axll.text(0.5, 0.7, LL_L1_text, ha="center", va="center",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0), visible=False)
+    LL_L2_text_label = axll.text(0.5, 0.1, LL_L2_text, ha="center", va="center",fontsize=12, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0), visible=False)
     
     plt.sca(axlr)
-    LR_L1_text_label = axlr.text(0.5, 0.6, LR_L1_text, ha="center", va="center",fontsize=16, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0), visible=False)
-    LR_L2_text_label = axlr.text(0.5, 0.1, LR_L2_text, ha="center", va="center",fontsize=14, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0), visible=False)
+    LR_L1_text_label = axlr.text(0.5, 0.7, LR_L1_text, ha="center", va="center",fontsize=14, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0), visible=False)
+    LR_L2_text_label = axlr.text(0.5, 0.1, LR_L2_text, ha="center", va="center",fontsize=12, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0), visible=False)
     
     #####################################################################
 
@@ -558,8 +557,7 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
         triangle_tick.set_data(-5, seis_data_cut[-1])
 
         # Adds timing counter
-        # ax4.text(TW_duration-(TW_duration/40), max_amp-0.05, 'Minutes after Earthquake: '+str(int(np.floor(t/60))), ha="right", va="top", fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='grey', pad=5.0))
-        timing_counter.set_text('Minutes after Earthquake: '+str(int(np.floor(iter))))
+        timing_counter.set_text('Minutes after Earthquake: '+str(int(np.floor(t/60))))
         
         # Adds label for waiting arriving earthquakes waves....
         if t < F_A_time:
@@ -572,20 +570,17 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
             wait_point='.'
             waiting=wait_rem*wait_point
             waves_arriving_label.set_text('Waves arriving '+str(waiting)+str(waiting_gap))
-            # ax4.text(0, min_amp+0.05, 'Waves arriving '+str(waiting)+str(waiting_gap), ha="left", va="bottom",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
         else:
             waves_arriving_label.set_text('Waves arrived!                      ')
-            # ax4.text(0, min_amp+0.05, 'Waves arrived!                      ', ha="left", va="bottom",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
-            # waves_arriving_label = ax4.text(0, min_amp+0.05, 'Waves arriving ', ha="left", va="bottom",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
 
         # Dynamic x-tick labelling.
-        ax4.set_xlabel('Time after Earthquake (min)', fontsize=14)
+        ax4.set_xlabel('Time after Earthquake (min)', fontsize=12)
         x_label_pos = seis_plot_time[round((divmod(t,60)[1])/delta)::round(60/delta)]
         x_label_val = [ int(np.floor(i)) for i in seis_times_new[round((60+t)/delta):round((TW_duration/delta)+(t/delta))+1:round(60/delta)]/60 ][::-1]
         ax4.set_xticks(x_label_pos)
         ax4.set_xticklabels(x_label_val)
 
-        if t >= np.floor(key_phase_A_time + Key_phase_width): # and t < np.floor(key_phase_A_time + Key_phase_label_time):
+        if t >= np.floor(key_phase_A_time + Key_phase_width):
             # Here is where the magic happens
             
             key_phase_seis_time_end = np.floor(t - key_phase_A_time)
@@ -596,34 +591,25 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
             
             phase_box.set_visible(True)
             phase_box.set_x(key_phase_seis_time_start)
-            
-            
-        # elif t >= np.floor(key_phase_A_time + Key_phase_label_time):
-        #     # want to remove the above features.
-        #     phase_label.set_visible(False)
-        #     phase_box.set_visible(False)
-        
+
+
         # This part plots the time dependent appearance of labels and the lower image
         # Layer 1 text - left label
         if len(LL_L1_text) > 0: 
             if t >= LL_L1_time*np.floor(F_A_time)-2:
                 LL_L1_text_label.set_visible(True)
-                # LL_L1_text_label = axll.text(0.5, 0.6, LL_L1_text, ha="center", va="center",fontsize=16, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
         # Layer 2 text - left label
         if len(LL_L2_text) > 0: 
             if t >= LL_L2_time*np.floor(F_A_time)-2:
                 LL_L2_text_label.set_visible(True)
-                # LL_L2_text_label = axll.text(0.5, 0.1, LL_L2_text, ha="center", va="center",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0))
         # Layer 1 text - right label
         if len(LR_L1_text) > 0: 
             if t >= LR_L1_time*np.floor(F_A_time)-2:
                 LR_L1_text_label.set_visible(True)
-                # LR_L1_text_label = axlr.text(0.5, 0.6, LR_L1_text, ha="center", va="center",fontsize=16, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0))
         # Layer 2 text - right label
         if len(LR_L2_text) > 0: 
             if t >= LR_L2_time*np.floor(F_A_time)-2:
                 LR_L2_text_label.set_visible(True)
-                # LR_L2_text_label = axlr.text(0.5, 0.1, LR_L2_text, ha="center", va="center",fontsize=14, color='black',bbox=dict(facecolor='white',edgecolor='white', pad=1.0))
 
         # Plot descriptive image (di) between the labels.
         if len(di_figure) > 0: 
@@ -644,7 +630,7 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
                               # Vector containing frame numbers
                               # frames,
                               # Frame information - generator function
-                              frames=100, #gen_function(),
+                              frames=gen_function(),
                               # Extra arguments to the animate function
                               fargs=[lines_left, lines_right],
                               # The number of values from frames to cache:

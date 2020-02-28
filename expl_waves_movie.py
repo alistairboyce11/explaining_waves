@@ -450,7 +450,7 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
     # Add collection to axes
     phase_box = ax4.add_patch(rect)
 
-    phase_label = ax4.text(key_phase_seis_time_end+0.05, key_phase_max_amp+0.08, 'Wave of interest!', ha="left",va="top",fontsize=12, color='black', visible=False, clip_on=True) 
+    phase_label = ax4.text(key_phase_seis_time_end+1, key_phase_max_amp+0.08, 'Wave of interest!', ha="left",va="top",fontsize=12, color='black', visible=False, clip_on=True, bbox=dict(facecolor='white',alpha=0.5,edgecolor='white', pad=0.0)) 
 
     plt.sca(axll)
     LL_L1_text_label = axll.text(0.5, 0.7, LL_L1_text, ha="center", va="center",fontsize=14, color='black', bbox=dict(facecolor='white', edgecolor='white', pad=1.0), visible=False)
@@ -587,7 +587,7 @@ def mk_mov(epi_dist=30, theta_earthquake=0, depth_earthquake=0, propagation_time
             key_phase_seis_time_start = np.floor(t - key_phase_A_time - Key_phase_width)
 
             phase_label.set_visible(True)
-            phase_label.set_x(key_phase_seis_time_end+0.05)
+            phase_label.set_x(key_phase_seis_time_end+1)
             
             phase_box.set_visible(True)
             phase_box.set_x(key_phase_seis_time_start)

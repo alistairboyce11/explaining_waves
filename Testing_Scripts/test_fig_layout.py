@@ -18,6 +18,8 @@ params = {'legend.fontsize': 'large',
          'xtick.labelsize':'14',
          'ytick.labelsize':'14'}
 pylab.rcParams.update(params)
+from matplotlib.collections import PatchCollection
+import matplotlib.patches as patches
 
 import sys
 sys.path.append('../')
@@ -156,6 +158,34 @@ waiting=wait_rem*wait_point
 # # Adds label for waiting arriving earthquakes waves....
 ax4.text(0, min_amp+0.05, 'Earthquake waves arriving '+str(waiting), ha="left", va="bottom",
                         fontsize=12, color='black')
+
+
+
+# Set invisible text in place for the key phase labelling.
+Key_phase_width=20
+key_phase_seis_time_end = Key_phase_width
+key_phase_seis_time_start = 0
+key_phase_max_amp = 0.5 # np.max(np.abs(seis_data_new[len(time_buffer)+int(np.floor((key_phase_A_time/delta))):len(time_buffer)+int(np.floor((key_phase_A_time + Key_phase_width)/delta)):1]))
+
+rect = patches.Rectangle((key_phase_seis_time_start , -key_phase_max_amp-0.05), Key_phase_width, 2*(key_phase_max_amp+0.05), fill=False,edgecolor='b', alpha=1, visible=False)
+# Add collection to axes
+phase_box = ax4.add_patch(rect)
+
+phase_label = ax4.text(key_phase_seis_time_end+1, key_phase_max_amp+0.08, 'Wave of interest!', ha="left",va="top",fontsize=12, color='black', visible=False, clip_on=True, bbox=dict(facecolor='white',alpha=0.5,edgecolor='white', pad=0.0)) 
+
+phase_label.set_visible(True)
+
+phase_box.set_visible(True)
+
+
+
+
+
+
+
+
+
+
 
 if len(LL_L1_text) > 0:
     # Layer 1 text - left label

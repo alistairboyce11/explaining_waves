@@ -16,7 +16,7 @@ while True:
 		exhibit.play_vid(filename, 3)
 
 	except KeyboardInterrupt:
-		print('Terminating script')		
+		print('Terminating script')
 		break
 
 #Close screensaver

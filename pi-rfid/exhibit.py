@@ -155,6 +155,26 @@ def error_screen():
 
 
 
+def wait_screen(filename, time):
+	'''
+	This function displays a temporary screen for a time
+	'''
+	
+	#Import relevant modules
+	import subprocess
+	import time
+	import os
 
+	#Define path to screen
+	im_path = os.getcwd() + '/screens/' + filename
+
+	#Display image with Eye of Gnome
+	proc = subprocess.Popen('eog -f -n ' + im_path, shell = True)
+
+	#Wait for a number of seconds
+	time.sleep(time)
+
+	#Close sceen
+	close_process(proc.pid)
 
 

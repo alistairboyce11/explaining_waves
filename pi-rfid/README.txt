@@ -1,6 +1,6 @@
 README file for Raspberry Pi museum video player
-Created 20/02/20 S. Russell
-
+Created 20/02/20
+Edited  24/09/20
 
 
 
@@ -9,7 +9,7 @@ Created 20/02/20 S. Russell
 The following sites were used in the making of this project.
 
 https://pimylifeup.com/raspberry-pi-rfid-rc522/
-This site is a tutorial on how to set up the RFID RC522 chip, it is highly recommended to work through this while setting up this project.
+This site is a tutorial on how to set uo the RFID RC522 chip, it is highy recommended to work through this while setting up this project.
 This page crucially talks you through how to wire the reader and how to write and read the tags.
 
 
@@ -57,6 +57,9 @@ script.py
 This is the main script that does all the work. This script calls its functions from exhibit.py.
 It will continue looping until ctrl+c is pressed in the terminal.
 
+loop.py
+This script was developed to run the videos on a loop with 20s delay between them 
+This is used for a "hands-free/Covid secure" demonstration of the videos.
 
 original_scripts
 Within this directory are three more scripts.

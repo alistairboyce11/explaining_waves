@@ -5,7 +5,6 @@
 
 
 
-
 def open_screensaver():
 	'''
 	This function opens an image and keeps it open in the background
@@ -125,6 +124,51 @@ def play_vid(filename, end_delay):
 		error_screen()
 
 
+def play_vid_loop(filename, end_delay):
+	'''
+	This function plays a video as specified by the filename.
+	It will also pause at the end for a time given by end_delay in seconds
+	'''
+
+	#Import relevant modules
+	import subprocess
+	import time
+	import os
+	import sys
+
+	#Modify filename
+	filename = os.getcwd() + '/videos/' + filename
+
+	try:
+		#Get length of video
+		x = subprocess.check_output('mediainfo ' + filename, shell = True)
+		x = x.decode('utf-8')
+		x = x.split('\n')
+		for i in range(len(x)):
+			if 'Duration' in x[i]:
+				duration = x[i].split(':')[1]
+				break
+
+		duration = duration.strip()
+		duration = duration.split('s')
+		seconds = duration[0].strip()
+		milliseconds = duration[1][0:-1].strip()
+		duration = float(seconds + '.' + milliseconds)
+		
+		#Call totem to play video
+		proc = subprocess.Popen(['omxplayer',filename], stdin = subprocess.PIPE, stdout = None, stderr = None, bufsize = 0)
+		
+		#Wait till end of video and pause
+		time.sleep(duration - 1)
+		proc.stdin.write(b' ')
+		time.sleep(end_delay)
+
+		#Kill process AND close window
+		close_process(proc.pid)
+
+	except KeyboardInterrupt:
+		print('Terminating script')		
+		sys.exit()
 
 
 

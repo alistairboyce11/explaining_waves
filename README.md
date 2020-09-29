@@ -11,3 +11,4 @@ In here you'll find all the python codes required to generate movies to learn ab
 ./wavefront_movie_home_screen/ contains the background Earth image loaded into the movies
 ./wavefront_movie_images/ contains images used within the individual movies that describe our research.
 ./wavefront_movie_outputs/ empty directory used to save the output files fo the movie making procedure.
+./home_screen_movie/ contains scripts to make COVID19 compatible homescreens that run before each movie

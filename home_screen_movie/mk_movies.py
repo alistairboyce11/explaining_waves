@@ -35,6 +35,6 @@ mov_labels = ['Diffracted Waves',
               
 
 for i in range(len(filenames)):
-    hsm.mk_mov(propagation_time=20, output_location='./home_screen_outputs/', mov_name_str=filenames[i], mov_label=mov_labels[i], mov_fps=1, mov_dpi=150)
+    hsm.mk_mov(propagation_time=20, output_location='./home_screen_outputs/', mov_name_str=filenames[i], mov_label=mov_labels[i], mov_fps=20, mov_dpi=150)
 
-# hsm.mk_mov(propagation_time=20, output_location='./', mov_name_str=filenames[1], mov_label=mov_labels[1], mov_fps=1, mov_dpi=150)
+# hsm.mk_mov(propagation_time=20, output_location='./', mov_name_str=filenames[1], mov_label=mov_labels[1], mov_fps=20, mov_dpi=150)

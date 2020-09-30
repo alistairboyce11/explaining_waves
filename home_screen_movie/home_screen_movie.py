@@ -55,7 +55,7 @@ import setup_plot_area as spa
 
     # Funciton called to make the explaing waves movies.
 def mk_mov(propagation_time=20, output_location='./', mov_name_str='Core_Diff', mov_label='Core Diffraction',
-           mov_fps=1, mov_dpi=150):
+           mov_fps=10, mov_dpi=150):
     Filename_MOV = output_location + mov_name_str + '.mp4'
     #################### Calculate the frames vector ####################################
     # This is a way to dictate when the movie pauses.
@@ -64,7 +64,7 @@ def mk_mov(propagation_time=20, output_location='./', mov_name_str='Core_Diff', 
     # Make the frames vector as integer intervals from zero to propagation_time -1
     # This must be a generator function that is passed to funcanimation below
 
-    frames=np.arange(0, propagation_time , 1)
+    frames=np.arange(0, propagation_time*mov_fps , 1)
 	
     # ##################### SET UP THE PLOTTING AREA HERE #######################
 
@@ -81,7 +81,7 @@ def mk_mov(propagation_time=20, output_location='./', mov_name_str='Core_Diff', 
     ax2.text(0.5,0.5, '"'+str(mov_label)+'"', ha="center", va="bottom",fontsize=16, color='black',fontweight='bold')
 	
     # Adds timing counter
-    timing_counter = ax2.text(0.5,0.25, 'Time to video: '+str(int(20-t))+'s', ha="center", va="bottom",fontsize=14, color='black',fontweight='semibold')
+    timing_counter = ax2.text(0.5,0.25, 'Time to video: '+str(int(np.round((20*mov_fps)-t)/mov_fps))+'s', ha="center", va="bottom",fontsize=14, color='black',fontweight='semibold')
     #
     #####################################################################
 
@@ -97,7 +97,7 @@ def mk_mov(propagation_time=20, output_location='./', mov_name_str='Core_Diff', 
         print('Time step calculated: '+str(t))
 
         # Adds timing counter
-        timing_counter.set_text('Time to video: '+str(int(20-t))+'s')
+        timing_counter.set_text('Time to video: '+str(int(np.round((20*mov_fps)-t)/mov_fps))+'s')
 
         return()
             
@@ -114,7 +114,7 @@ def mk_mov(propagation_time=20, output_location='./', mov_name_str='Core_Diff', 
                               # Extra arguments to the animate function
                               # fargs=[lines_left, lines_right],
                               # The number of values from frames to cache:
-                              save_count=propagation_time,
+                              save_count=propagation_time*mov_fps,
                               # Frame-time in ms; i.e. for a given frame-rate x, 1000/x
                               interval=1000/frame_rate,
                               repeat=False,
